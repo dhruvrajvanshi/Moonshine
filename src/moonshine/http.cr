@@ -1,4 +1,5 @@
 require "http"
+require "time"
 
 class Moonshine::Request
 	getter params
@@ -27,8 +28,10 @@ class Moonshine::Response
 	getter status_code
 	getter body
 	getter headers
+	getter cookies
+	setter cookies
 
-	def initialize(@status_code, @body, @version = "HTTP/1.1")
+	def initialize(@status_code, @body, @version = "HTTP/1.1", @cookies = {} of String => String)
 		@headers = HTTP::Headers.new
 	end
 
@@ -36,8 +39,22 @@ class Moonshine::Response
 		@headers[key] = value
 	end
 
+
 	def to_base_response()
+		unless @cookies.empty?
+			cookie_string = serialize_cookies()
+			@headers["Set-Cookie"] = cookie_string
+		end
 		return HTTP::Response.new(@status_code, @body, 
 			headers = @headers, version = @version)
+	end
+
+	def serialize_cookies()
+		cookie_string = ""
+		@cookies.each do |key, value|
+			cookie_string += key + "=" + value + ", "
+		end
+		cookie_string = cookie_string[0..-2]
+		cookie_string
 	end
 end
