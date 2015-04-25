@@ -29,6 +29,14 @@ class Moonshine::App
 				block)
 		end
 	end
+
+	# methods for adding routes for individual
+	# HTTP verbs
+	{% for method in %w(get post put delete patch) %}
+		def {{method.id}}(path, &block : Moonshine::Request -> Moonshine::Response)
+			@routes << Moonshine::Route.new("{{method.id}}".upcase, path.to_s, block)
+		end
+	{% end %}
 end
 
 
