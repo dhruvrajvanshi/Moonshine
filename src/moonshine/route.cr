@@ -3,16 +3,20 @@ class Moonshine::Route
 	# Is a simple 2-tuple of a regex and a 
 	# controller class name
 
-	getter controller
 	getter pattern
-	def initialize(@pattern, @controller)
+	getter block
+
+	def initialize(@method, @pattern, @block)
 		# strip trailing slash
 		unless @pattern == "/" 
 			@pattern = @pattern.gsub(/\/$/, "")
 		end
 	end
 
-	def match?(path)
+	# Check if request matched the current route
+	def match?(request : Moonshine::Request)
+		return false unless request.method == @method
+		path = request.path
 		return path == "/" if @path == "/"
 		return false if path.split("/").length !=
 			@pattern.split("/").length
@@ -20,7 +24,11 @@ class Moonshine::Route
 		path.match(regex)
 	end
 
-	def get_params(path)
+	# Returns hash of request parameters from
+	# request
+	def get_params(request : Moonshine::Request)
+		# get request path
+		path = request.path
 		params = {} of String => String
 		path_items = path.split("/")
 		pattern_items = @pattern.split("/")

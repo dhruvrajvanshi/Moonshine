@@ -5,6 +5,7 @@ class Moonshine::App
 	# Base class for Moonshine app
 	getter server
 	getter routes
+	getter logger
 
 	def initialize()
 		@logger = Moonshine::Logger.new
@@ -12,18 +13,21 @@ class Moonshine::App
 		@static_dirs = nil
 	end
 
-	def route(regex, controller_class)
-		# add route to @routes by instantiating the controller
-		# class
-		@routes.push Moonshine::Route.new(regex, 
-			controller_class.new)
-	end
-
 	def run(port = 8000)
 		# Run the webapp on the specified port
 		puts "Moonshine serving at port #{port}..."
 		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes))
 		server.listen()
+	end
+
+	# Add route for all methods to the app
+	# Takes in regex pattern and block
+	def route(regex, &block : Moonshine::Request -> Moonshine::Response)
+		methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
+		methods.each do |method|
+			@routes.push Moonshine::Route.new(method, regex, 
+				block)
+		end
 	end
 end
 
@@ -39,10 +43,10 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 		request = Moonshine::Request.new(base_request)
 		# search @routes for matching route
 		@routes.each do |route|
-			if route.match? (request.path)
+			if route.match? (request)
 				# controller found
-				request.set_params(route.get_params(request.path))
-				return route.controller.handle(request).to_base_response()
+				request.set_params(route.get_params(request))
+				return route.block.call(request).to_base_response()
 			end
 		end
 
