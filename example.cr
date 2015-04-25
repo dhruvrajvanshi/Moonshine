@@ -1,11 +1,12 @@
 require "./src/moonshine"
 include Moonshine
+include Moonshine::Shortcuts
 
 viewcount = 0
 
 app = Moonshine::App.new
 app.route "/", do |request|
-	Moonshine::Response.new(200, "Hello Moonshine!")
+	ok("Hello Moonshine!")
 end
 
 app.run()
