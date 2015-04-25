@@ -15,13 +15,20 @@ class Moonshine::Route
 
 	# Check if request matched the current route
 	def match?(request : Moonshine::Request)
+		# Non matching request method
 		return false unless request.method == @method
+		
 		path = request.path
-		return path == "/" if @path == "/"
+		# return path == "/" if @path == "/"
 		return false if path.split("/").length !=
 			@pattern.split("/").length
 		regex = Regex.new(@pattern.to_s.gsub(/(:\w*)/, ".*"))
-		path.match(regex)
+		if path.match(regex)
+			return true
+		else
+			return false
+		end
+
 	end
 
 	# Returns hash of request parameters from
