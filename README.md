@@ -9,5 +9,3 @@ Code speaks louder than words, so here's an example
 	app.route "/", do |request|
 		ok("Hello Moonshine!")
 	end
-
-Note that the controller needs to have a method named handle which returns a Moonshine::Response, otherwise the web server won't know which method to call.
