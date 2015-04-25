@@ -19,4 +19,13 @@ describe BaseHTTPHandler do
 		res.status_code.should eq (200)
 		res.body.should eq("hello")
 	end
+
+	it "returns static file" do
+		handler = BaseHTTPHandler.new([] of Route,
+			["spec/res"])
+		req = HTTP::Request.new("GET", "/static.txt")
+		res = handler.call(req)
+		res.status_code.should eq(200)
+		res.body.should eq("hello")
+	end
 end

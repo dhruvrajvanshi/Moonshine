@@ -6,17 +6,17 @@ class Moonshine::App
 	getter server
 	getter routes
 	getter logger
+	getter static_dirs
 
-	def initialize()
+	def initialize(@static_dirs = [] of String)
 		@logger = Moonshine::Logger.new
 		@routes = [] of Moonshine::Route
-		@static_dirs = nil
 	end
 
 	def run(port = 8000)
 		# Run the webapp on the specified port
 		puts "Moonshine serving at port #{port}..."
-		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes))
+		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs))
 		server.listen()
 	end
 
@@ -28,6 +28,10 @@ class Moonshine::App
 			@routes.push Moonshine::Route.new(method, regex, 
 				block)
 		end
+	end
+
+	def add_static_dir(path)
+		@static_dirs << path
 	end
 
 	# methods for adding routes for individual
@@ -44,7 +48,8 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 	# Main HTTP handler class for Moonshine. It's call method
 	# is called by the HTTP server when a request is received
 
-	def initialize(@routes)
+	def initialize(@routes,
+		@static_dirs = [] of String)
 	end
 
 	def call(base_request : HTTP::Request)
@@ -58,7 +63,14 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 			end
 		end
 
-		# TODO: Search static dirs
+		# Search static dirs
+		@static_dirs.each do |dir|
+			filepath = File.join(dir, request.path)
+			if File.exists?(filepath)
+				return HTTP::Response.new(200, File.read(filepath), 
+					HTTP::Headers{"Content-Type": mime_type(filepath)})
+			end
+		end
 
 		# Route match not found return 404 error response
 		return HTTP::Response.new(404,
@@ -66,4 +78,14 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 						<h1>404</h1><hr>
 						#{request.path} not found</body></html>")
 	end
+
+	private def mime_type(path)
+	    case File.extname(path)
+	    when ".txt" then "text/plain"
+	    when ".htm", ".html" then "text/html"
+	    when ".css" then "text/css"
+	    when ".js" then "application/javascript"
+	    else "application/octet-stream"
+	    end
+	  end
 end
