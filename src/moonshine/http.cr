@@ -8,7 +8,6 @@ class Moonshine::Request
 	getter version
 	getter body
 	getter headers
-	getter host
 
 	def initialize(request : HTTP::Request)
 		@path = request.path

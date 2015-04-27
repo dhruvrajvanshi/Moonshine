@@ -11,12 +11,13 @@ class Moonshine::App
 	def initialize(@static_dirs = [] of String)
 		@logger = Moonshine::Logger.new
 		@routes = [] of Moonshine::Route
+		@error_handlers = {} of Int32 => Request -> Response
 	end
 
 	def run(port = 8000)
 		# Run the webapp on the specified port
 		puts "Moonshine serving at port #{port}..."
-		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs))
+		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs, @error_handlers))
 		server.listen()
 	end
 
@@ -28,6 +29,13 @@ class Moonshine::App
 			@routes.push Moonshine::Route.new(method, regex, 
 				block)
 		end
+	end
+
+	# Add handler for given error code
+	# multiple calls for the same error code result
+	# in overriding the previous handler
+	def error_handler(error_code, &block : Request -> Response)
+		@error_handlers[error_code] = block
 	end
 
 	def add_static_dir(path)
@@ -49,7 +57,11 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 	# is called by the HTTP server when a request is received
 
 	def initialize(@routes,
-		@static_dirs = [] of String)
+		@static_dirs = [] of String,
+		@error_handlers = {} of Int32 => Moonshine::Request -> Moonshine::Response)
+		error_handler 404, do |req|
+			Response.new(404, "Page not found")
+		end
 	end
 
 	def call(base_request : HTTP::Request)
@@ -59,7 +71,13 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 			if route.match? (request)
 				# controller found
 				request.set_params(route.get_params(request))
-				return route.block.call(request).to_base_response()
+				response = route.block.call(request).to_base_response()
+				
+				# check if there's an error handler defined
+				if response.status_code >= 400 && @error_handlers.has_key? response.status_code
+					return @error_handlers[response.status_code].call(request).to_base_response
+				end
+				return response
 			end
 		end
 
@@ -73,10 +91,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 		end
 
 		# Route match not found return 404 error response
-		return HTTP::Response.new(404,
-					"<html><body>
-						<h1>404</h1><hr>
-						#{request.path} not found</body></html>")
+		return @error_handlers[404].call(request).to_base_response
 	end
 
 	private def mime_type(path)
@@ -88,4 +103,8 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 	    else "application/octet-stream"
 	    end
 	  end
+
+	private def error_handler(error_code, &block : Request -> Response)
+		@error_handlers[error_code] = block
+	end
 end
