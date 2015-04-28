@@ -21,6 +21,11 @@ class Moonshine::App
 		end
 	end
 
+	def define
+		with self yield
+		self # allow chaining
+	end
+
 	def run(port = 8000)
 		# Run the webapp on the specified port
 		puts "Moonshine serving at port #{port}..."
@@ -33,13 +38,13 @@ class Moonshine::App
 	def route(regex, &block : Moonshine::Request -> Moonshine::Response)
 		methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
 		methods.each do |method|
-			@routes.push Moonshine::Route.new(method, regex, 
+			@routes.push Moonshine::Route.new(method, regex,
 				block)
 		end
 	end
 
 	##
-	# Add request handler. If handler returns a 
+	# Add request handler. If handler returns a
 	# response, no further handlers are called.
 	# If nil is returned, the next handler is run
 	def request_middleware(&block : Request -> MiddlewareResponse)
@@ -97,7 +102,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 				# controller found
 				request.set_params(route.get_params(request))
 				response = route.block.call(request)
-				
+
 				# check if there's an error handler defined
 				if response.status_code >= 400 && @error_handlers.has_key? response.status_code
 					return @error_handlers[response.status_code].call(request).to_base_response
@@ -110,7 +115,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 		@static_dirs.each do |dir|
 			filepath = File.join(dir, request.path)
 			if File.exists?(filepath)
-				return HTTP::Response.new(200, File.read(filepath), 
+				return HTTP::Response.new(200, File.read(filepath),
 					HTTP::Headers{"Content-Type": mime_type(filepath)})
 			end
 		end
