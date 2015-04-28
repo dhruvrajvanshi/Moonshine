@@ -2,8 +2,8 @@ require "./spec_helper"
 require "http"
 
 describe BaseHTTPHandler do
-	it "returns 404" do 
-		handler = BaseHTTPHandler.new ([] of Moonshine::Route)
+	it "returns 404" do  
+		handler = BaseHTTPHandler.new ([] of Route)
 		req = HTTP::Request.new("GET", "/")
 		res = handler.call(req)
 		res.status_code.should eq (404)
@@ -28,4 +28,5 @@ describe BaseHTTPHandler do
 		res.status_code.should eq(200)
 		res.body.should eq("hello")
 	end
+
 end

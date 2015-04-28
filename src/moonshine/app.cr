@@ -8,16 +8,23 @@ class Moonshine::App
 	getter logger
 	getter static_dirs
 
-	def initialize(@static_dirs = [] of String)
+
+	def initialize(
+		@static_dirs = [] of String,
+		@routes = [] of Moonshine::Route,
+		@error_handlers = {} of Int32 => Request -> Response,
+		@request_middleware = [] of Request -> MiddlewareResponse)
 		@logger = Moonshine::Logger.new
-		@routes = [] of Moonshine::Route
-		@error_handlers = {} of Int32 => Request -> Response
+		# add default 404 handler
+		error_handler 404, do |req|
+			Response.new(404, "Page not found")
+		end
 	end
 
 	def run(port = 8000)
 		# Run the webapp on the specified port
 		puts "Moonshine serving at port #{port}..."
-		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs, @error_handlers))
+		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs, @error_handlers, @request_middleware))
 		server.listen()
 	end
 
@@ -29,6 +36,14 @@ class Moonshine::App
 			@routes.push Moonshine::Route.new(method, regex, 
 				block)
 		end
+	end
+
+	##
+	# Add request handler. If handler returns a 
+	# response, no further handlers are called.
+	# If nil is returned, the next handler is run
+	def request_middleware(&block : Request -> MiddlewareResponse)
+		@request_middleware << block
 	end
 
 	# Add handler for given error code
@@ -56,28 +71,38 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 	# Main HTTP handler class for Moonshine. It's call method
 	# is called by the HTTP server when a request is received
 
-	def initialize(@routes,
+	def initialize(@routes = [] of Route,
 		@static_dirs = [] of String,
-		@error_handlers = {} of Int32 => Moonshine::Request -> Moonshine::Response)
-		error_handler 404, do |req|
-			Response.new(404, "Page not found")
+		@error_handlers = {} of Int32 => Moonshine::Request -> Moonshine::Response,
+		@request_middleware = [] of Request -> MiddlewareResponse)
+		# add default 404 handler if it isn't there
+		unless @error_handlers.has_key? 404
+			@error_handlers[404] = ->(request : Request) { Response.new(404, "Not found")}
 		end
 	end
 
 	def call(base_request : HTTP::Request)
 		request = Moonshine::Request.new(base_request)
+		# call request middleware
+		@request_middleware.each do |middleware|
+			optionalresponse = middleware.call(request)
+			unless optionalresponse.pass_through
+				return optionalresponse.response.to_base_response
+			end
+		end
+
 		# search @routes for matching route
 		@routes.each do |route|
 			if route.match? (request)
 				# controller found
 				request.set_params(route.get_params(request))
-				response = route.block.call(request).to_base_response()
+				response = route.block.call(request)
 				
 				# check if there's an error handler defined
 				if response.status_code >= 400 && @error_handlers.has_key? response.status_code
 					return @error_handlers[response.status_code].call(request).to_base_response
 				end
-				return response
+				return response.to_base_response()
 			end
 		end
 
