@@ -1,4 +1,4 @@
-# Moonshine
+# Moonshine [![Build Status](https://travis-ci.org/dhruvrajvanshi/Moonshine.svg?branch=master)](https://travis-ci.org/dhruvrajvanshi/Moonshine)
 Moonshine is a minimal web framework for the Crystal language.
 Code speaks louder than words, so here's an example
 
