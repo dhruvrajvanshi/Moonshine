@@ -6,8 +6,9 @@ class Moonshine::Request
 	getter path
 	getter method
 	getter version
-	getter body
-	getter headers
+	property body
+	property headers
+	getter cookies
 
 	def initialize(request : HTTP::Request)
 		@path = request.path
@@ -16,10 +17,22 @@ class Moonshine::Request
 		@body    = request.body
 		@headers = request.headers
 		@params = {} of String => String
+		@cookies = {} of String => String
+		parse_cookies()
 	end
 
 	def set_params(par)
 		@params = par
+	end
+
+	def parse_cookies()
+		if @headers.has_key? "Cookie"
+			@headers["Cookie"].split(";").each do |cookie|
+				key = cookie.strip().split("=")[0]
+				value = cookie.strip().split("=")[1]
+				@cookies[key] = value
+			end
+		end
 	end
 end
 
@@ -40,21 +53,24 @@ class Moonshine::Response
 
 
 	def to_base_response()
-		unless @cookies.empty?
-			cookie_string = serialize_cookies()
-			@headers["Set-Cookie"] = cookie_string
-		end
+		# unless @cookies.empty?
+		# 	cookie_string = serialize_cookies()
+		# 	@headers["Set-Cookie"] = cookie_string
+		# end
 		return HTTP::Response.new(@status_code, @body, 
 			headers = @headers, version = @version)
 	end
 
-	def serialize_cookies()
-		cookie_string = ""
-		@cookies.each do |key, value|
-			cookie_string += key + "=" + value + ", "
+	# TODO : Add expiry
+	def set_cookie(key, value, @secure = false, @http_only = false)
+		cookie_string = "#{key}=#{value}"
+		if @secure
+			cookie_string += "; secure"
 		end
-		cookie_string = cookie_string[0..-2]
-		cookie_string
+		if @http_only
+			cookie_string += "; HttpOnly"
+		end
+		headers.add("Set-Cookie", cookie_string)
 	end
 end
 
