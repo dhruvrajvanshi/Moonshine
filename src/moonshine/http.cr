@@ -10,6 +10,7 @@ class Moonshine::Request
 	property headers
 	getter cookies
 	getter get
+	getter post
 
 	def initialize(request : HTTP::Request)
 		@path = request.path
@@ -20,15 +21,28 @@ class Moonshine::Request
 		@params = {} of String => String
 		@cookies = {} of String => String
 		@get = {} of String => String
+		@post = {} of String => String
 		parse_cookies()
 		parse_get_params()
+		parse_post_params()
+	end
+
+	def content_type()
+		unless @headers.has_key? "Content-type"
+			return ""
+		end
+		return @headers["Content-type"]
 	end
 
 	def set_params(par)
 		@params = par
 	end
 
-	def parse_cookies()
+	def body
+		@body.to_s
+	end
+
+	private def parse_cookies()
 		if @headers.has_key? "Cookie"
 			@headers["Cookie"].split(";").each do |cookie|
 				key = cookie.strip().split("=")[0]
@@ -38,7 +52,7 @@ class Moonshine::Request
 		end
 	end
 
-	def parse_get_params()
+	private def parse_get_params()
 		if @path.split("?").length > 1
 			raise "Invalid url #{@path};\
 				Url cannot contain more\
@@ -54,6 +68,19 @@ class Moonshine::Request
 		end
 	end
 
+	private def parse_post_params()
+		if content_type.downcase == "application/x-www-form-urlencoded"
+			body.split("&").each do |parameter|
+				raise "Invalid request query string" unless parameter.split("=").length == 2
+				key = parameter.split("=")[0]
+				value = parameter.split("=")[1]
+				@post[key] = decode_query_param(value)
+			end
+		end
+	end
+
+	##
+	# Unescape query parameter value
 	private def decode_query_param(string)
 		# replace + with spaces
 		string = string.gsub(/\+/, " ")
