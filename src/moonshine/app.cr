@@ -22,6 +22,11 @@ class Moonshine::App
 		end
 	end
 
+	def define
+		with self yield
+		self # allow chaining
+	end
+
 	def run(port = 8000)
 		# Run the webapp on the specified port
 		puts "Moonshine serving at port #{port}..."
@@ -35,12 +40,11 @@ class Moonshine::App
 	def route(regex, &block : Moonshine::Request -> Moonshine::Response)
 		methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
 		methods.each do |method|
-			@routes.push Moonshine::Route.new(method, regex, 
+			@routes.push Moonshine::Route.new(method, regex,
 				block)
 		end
 	end
 
-	##
 	# Add request middleware. If handler returns a 
 	# response, no further handlers are called.
 	# If nil is returned, the next handler is run
