@@ -9,6 +9,7 @@ class Moonshine::Request
 	property body
 	property headers
 	getter cookies
+	getter get
 
 	def initialize(request : HTTP::Request)
 		@path = request.path
@@ -18,7 +19,9 @@ class Moonshine::Request
 		@headers = request.headers
 		@params = {} of String => String
 		@cookies = {} of String => String
+		@get = {} of String => String
 		parse_cookies()
+		parse_get_params()
 	end
 
 	def set_params(par)
@@ -33,6 +36,48 @@ class Moonshine::Request
 				@cookies[key] = value
 			end
 		end
+	end
+
+	def parse_get_params()
+		if @path.split("?").length > 1
+			raise "Invalid url #{@path};\
+				Url cannot contain more\
+				than one '?'" unless @path.split("?").length == 2
+			query_string = @path.split("?")[1]
+			@path = @path.split("?")[0]
+			query_string.split("&").each do |parameter|
+				raise "Invalid request query string" unless parameter.split("=").length == 2
+				key = parameter.split("=")[0]
+				value = parameter.split("=")[1]
+				@get[key] = decode_query_param(value)
+			end
+		end
+	end
+
+	private def decode_query_param(string)
+		# replace + with spaces
+		string = string.gsub(/\+/, " ")
+		out_string = ""
+		state = 0
+		hex_str = ""
+		string.each_char do |char|
+			if state == 1
+				hex_str += char
+				state = 2
+			elsif state == 2
+				hex_str += char
+				out_string += hex_str.to_i(16).chr
+				state = 0
+			else
+				if char == '%'
+					state = 1
+					hex_str = ""
+				else
+					out_string += char
+				end
+			end
+		end
+		out_string
 	end
 end
 
