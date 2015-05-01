@@ -26,12 +26,12 @@ end
 class Moonshine::Response
 	getter status_code
 	getter body
+	setter body
 	getter headers
 	getter cookies
 	setter cookies
 
-	def initialize(@status_code, @body, @version = "HTTP/1.1", @cookies = {} of String => String)
-		@headers = HTTP::Headers.new
+	def initialize(@status_code, @body, @headers = HTTP::Headers.new, @version = "HTTP/1.1", @cookies = {} of String => String)
 	end
 
 	def set_header(key, value)

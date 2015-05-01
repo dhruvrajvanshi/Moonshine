@@ -31,6 +31,7 @@ Code speaks louder than words, so here's an example
 	end
 
 ## Middleware
+### Request Middleware
 	# add request middleware
 	app.request_middleware do |req|
 		unless req.headers["user"]
@@ -44,7 +45,16 @@ Code speaks louder than words, so here's an example
 	end
 To add a request middleware, call app.request_middleware with a block that returns a Moonshine::MiddlewareResponse object. If the @pass_through attribute of the MiddlewareResponse is true, other request middlewares will be called. Otherwise the @response attribute will be directly returned
 
+### Response Middleware
+	# add response middleware
+	app.response_middleware do |req, res|
+		res.body = "Modified"
+		res
+	end
+Response middleware methods take request and response arguments and return a response. This is used to globally alter the response of the application. Response middleware are processed in order
+
 ## Static Files
 To serve a static directory, pass an array of paths to Moonshine::App's constructor
+	
 	app = Moonshine::App.new(static_dirs = ["res"])
 

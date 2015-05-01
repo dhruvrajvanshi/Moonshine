@@ -13,7 +13,8 @@ class Moonshine::App
 		@static_dirs = [] of String,
 		@routes = [] of Moonshine::Route,
 		@error_handlers = {} of Int32 => Request -> Response,
-		@request_middleware = [] of Request -> MiddlewareResponse)
+		@request_middleware = [] of Request -> MiddlewareResponse,
+		@response_middleware = [] of (Request, Response) -> Response)
 		@logger = Moonshine::Logger.new
 		# add default 404 handler
 		error_handler 404, do |req|
@@ -24,7 +25,8 @@ class Moonshine::App
 	def run(port = 8000)
 		# Run the webapp on the specified port
 		puts "Moonshine serving at port #{port}..."
-		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs, @error_handlers, @request_middleware))
+		server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs,
+			@error_handlers, @request_middleware, @response_middleware))
 		server.listen()
 	end
 
@@ -39,13 +41,18 @@ class Moonshine::App
 	end
 
 	##
-	# Add request handler. If handler returns a 
+	# Add request middleware. If handler returns a 
 	# response, no further handlers are called.
 	# If nil is returned, the next handler is run
 	def request_middleware(&block : Request -> MiddlewareResponse)
 		@request_middleware << block
 	end
 
+	##
+	# Add response middleware
+	def response_middleware(&block : (Request, Response) -> Response)
+		@response_middleware << block
+	end
 	# Add handler for given error code
 	# multiple calls for the same error code result
 	# in overriding the previous handler
@@ -74,7 +81,8 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 	def initialize(@routes = [] of Route,
 		@static_dirs = [] of String,
 		@error_handlers = {} of Int32 => Moonshine::Request -> Moonshine::Response,
-		@request_middleware = [] of Request -> MiddlewareResponse)
+		@request_middleware = [] of Request -> MiddlewareResponse,
+		@response_middleware = [] of (Request, Response) -> Response)
 		# add default 404 handler if it isn't there
 		unless @error_handlers.has_key? 404
 			@error_handlers[404] = ->(request : Request) { Response.new(404, "Not found")}
@@ -83,40 +91,57 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 
 	def call(base_request : HTTP::Request)
 		request = Moonshine::Request.new(base_request)
+		response = nil
+
 		# call request middleware
 		@request_middleware.each do |middleware|
 			optionalresponse = middleware.call(request)
 			unless optionalresponse.pass_through
-				return optionalresponse.response.to_base_response
+				response = optionalresponse.response
+				break
 			end
 		end
 
-		# search @routes for matching route
-		@routes.each do |route|
-			if route.match? (request)
-				# controller found
-				request.set_params(route.get_params(request))
-				response = route.block.call(request)
-				
-				# check if there's an error handler defined
-				if response.status_code >= 400 && @error_handlers.has_key? response.status_code
-					return @error_handlers[response.status_code].call(request).to_base_response
+		unless response
+			# search @routes for matching route
+			@routes.each do |route|
+				if route.match? (request)
+					# controller found
+					request.set_params(route.get_params(request))
+					response = route.block.call(request)
+					
+					# check if there's an error handler defined
+					if response.status_code >= 400 && @error_handlers.has_key? response.status_code
+						response = @error_handlers[response.status_code].call(request)
+					end
+					break
 				end
-				return response.to_base_response()
 			end
 		end
 
-		# Search static dirs
-		@static_dirs.each do |dir|
-			filepath = File.join(dir, request.path)
-			if File.exists?(filepath)
-				return HTTP::Response.new(200, File.read(filepath), 
-					HTTP::Headers{"Content-Type": mime_type(filepath)})
+		unless response
+			# Search static dirs
+			@static_dirs.each do |dir|
+				filepath = File.join(dir, request.path)
+				if File.exists?(filepath)
+					response = Moonshine::Response.new(200, File.read(filepath), 
+						HTTP::Headers{"Content-Type": mime_type(filepath)})
+				end
 			end
 		end
 
-		# Route match not found return 404 error response
-		return @error_handlers[404].call(request).to_base_response
+		unless response
+			# Route match not found return 404 error response
+			response = @error_handlers[404].call(request)
+		end
+
+		# apply response middleware
+		@response_middleware.each do |middleware|
+			response = middleware.call(request, response)
+		end
+
+
+		return response.to_base_response
 	end
 
 	private def mime_type(path)
