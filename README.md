@@ -1,6 +1,6 @@
 # Moonshine [![Build Status](https://travis-ci.org/dhruvrajvanshi/Moonshine.svg?branch=master)](https://travis-ci.org/dhruvrajvanshi/Moonshine)
 Moonshine is a minimal web framework for the Crystal language.
-Code speaks louder than words, so here's an example
+Code speaks louder than words, so here's an example.
 
 	include Moonshine
 	include Moonshine::Shortcuts
@@ -25,7 +25,7 @@ Code speaks louder than words, so here's an example
 	end
 	
 ## Controllers
-Controllers are objects which can respond to all HTTP verbs. You can override the methods get, post, etc to return responses. Base versions of these methods returns a 405(method not allowed) response. Override them to change this behaviour.
+Controllers are objects which can respond to all HTTP verbs. You can override the methods get, post, etc to return responses. Base versions of these methods return a 405(method not allowed) response. Override them to change this behaviour.
 	
 	# subclass Moonshine::Controller to define a controller
 	class HomeController < Moonshine::Controller
