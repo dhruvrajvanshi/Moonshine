@@ -43,6 +43,50 @@ Controllers are objects which can respond to all HTTP verbs. You can override th
 	# Bind controller to the app object
 	app.controller "/", HomeController.new
 
+app.controller can also take an Array of strings as first argument to match multiple routes with the controller.
+
+Override the call method of the controller to get custom routing within the controller.
+
+	class PostController < Moonshine::Controller
+		def initialize()
+			@posts = [
+						Post.new("Post1"),
+						Post.new("Post2")
+					 ] of Post
+		end
+
+		# Override for custom routing
+		def call(req : Moonshine::Request)
+			if Moonshine::Route.new("GET", "/posts").match? req
+				get_all_posts()
+			elsif Moonshine::Route.new("GET", "/posts/:id").match? req
+				get_post(req.params["id"])
+			else
+				Moonshine::Response.new(404, "Invalid path")
+			end
+		end
+
+		def get_all_posts()
+			return ok(@posts.to_s)
+		end
+
+		def get_post(id)
+			id = id.to_i
+			@posts.each do |post|
+				if post.id == id
+					return ok(post.to_s)
+				end
+			end
+			return Moonshine::Response.new(404,
+				"Post with id #{id} not found on server")
+		end
+	end
+
+	app.controller([
+			"/posts",
+			"/posts/:id"
+		] of String, PostController.new)
+
 ## Error Handlers
 	# add error handlers
 	app.error_handler "404", do |req|

@@ -71,6 +71,12 @@ class Moonshine::App
 		@routes[Route.new("", path)] = controller
 	end
 
+	def controller(paths : Array(String), controller : Controller)
+		paths.each do |path|
+			controller(path, controller)
+		end
+	end
+
 	# methods for adding routes for individual
 	# HTTP verbs
 	{% for method in %w(get post put delete patch) %}
@@ -79,7 +85,6 @@ class Moonshine::App
 		end
 	{% end %}
 end
-
 
 class Moonshine::BaseHTTPHandler < HTTP::Handler
 	# Main HTTP handler class for Moonshine. It's call method
