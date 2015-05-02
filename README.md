@@ -23,6 +23,25 @@ Code speaks louder than words, so here's an example
 		res.headers["Content-type"] = "text/json"
 		res
 	end
+	
+## Controllers
+Controllers are objects which can respond to all HTTP verbs. You can override the methods get, post, etc to return responses. Base versions of these methods returns a 405(method not allowed) response. Override them to change this behaviour.
+	
+	# subclass Moonshine::Controller to define a controller
+	class HomeController < Moonshine::Controller
+		def initialize()
+			@viewcount = 0
+		end
+
+		# Override individual HTTP methods
+		def get(req)
+			@viewcount += 1
+			ok("This page has been visited #{@viewcount} times.")
+		end
+	end
+
+	# Bind controller to the app object
+	app.controller "/", HomeController.new
 
 ## Error Handlers
 	# add error handlers

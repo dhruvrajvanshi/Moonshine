@@ -11,7 +11,7 @@ class Moonshine::App
 
 	def initialize(
 		@static_dirs = [] of String,
-		@routes = [] of Moonshine::Route,
+		@routes = {} of Moonshine::Route => (Request -> Response) | Controller,
 		@error_handlers = {} of Int32 => Request -> Response,
 		@request_middleware = [] of Request -> MiddlewareResponse,
 		@response_middleware = [] of (Request, Response) -> Response)
@@ -40,8 +40,7 @@ class Moonshine::App
 	def route(regex, &block : Moonshine::Request -> Moonshine::Response)
 		methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
 		methods.each do |method|
-			@routes.push Moonshine::Route.new(method, regex,
-				block)
+			@routes[Moonshine::Route.new(method, regex)] = block
 		end
 	end
 
@@ -68,11 +67,15 @@ class Moonshine::App
 		@static_dirs << path
 	end
 
+	def controller(path, controller : Controller)
+		@routes[Route.new("", path)] = controller
+	end
+
 	# methods for adding routes for individual
 	# HTTP verbs
 	{% for method in %w(get post put delete patch) %}
 		def {{method.id}}(path, &block : Moonshine::Request -> Moonshine::Response)
-			@routes << Moonshine::Route.new("{{method.id}}".upcase, path.to_s, block)
+			@routes[Moonshine::Route.new("{{method.id}}".upcase, path.to_s)] = block
 		end
 	{% end %}
 end
@@ -82,7 +85,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 	# Main HTTP handler class for Moonshine. It's call method
 	# is called by the HTTP server when a request is received
 
-	def initialize(@routes = [] of Route,
+	def initialize(@routes = {} of Route => (Request -> Response) | Controller,
 		@static_dirs = [] of String,
 		@error_handlers = {} of Int32 => Moonshine::Request -> Moonshine::Response,
 		@request_middleware = [] of Request -> MiddlewareResponse,
@@ -108,11 +111,11 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 
 		unless response
 			# search @routes for matching route
-			@routes.each do |route|
+			@routes.each do |route, block|
 				if route.match? (request)
 					# controller found
 					request.set_params(route.get_params(request))
-					response = route.block.call(request)
+					response = block.call(request)
 					
 					# check if there's an error handler defined
 					if response.status_code >= 400 && @error_handlers.has_key? response.status_code

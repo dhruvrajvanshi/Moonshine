@@ -4,9 +4,9 @@ class Moonshine::Route
 	# controller class name
 
 	getter pattern
-	getter block
+	getter method
 
-	def initialize(@method, @pattern, @block)
+	def initialize(@method, @pattern)
 		# strip trailing slash
 		unless @pattern == "/" 
 			@pattern = @pattern.gsub(/\/$/, "")
@@ -16,8 +16,7 @@ class Moonshine::Route
 	# Check if request matched the current route
 	def match?(request : Moonshine::Request)
 		# Non matching request method
-		return false unless request.method == @method
-		
+		return false unless (request.method == @method || @method == "")
 		path = request.path
 		# return path == "/" if @path == "/"
 		return false if path.split("/").length !=

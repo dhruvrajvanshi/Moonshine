@@ -2,6 +2,7 @@ require "spec"
 require "../src/moonshine"
 
 include Moonshine
+include Moonshine::Shortcuts
 
 # Helper method
 def new_request(method, path)

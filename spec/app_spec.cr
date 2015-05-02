@@ -1,19 +1,25 @@
 require "./spec_helper"
 require "http"
 
+class HelloController < Controller
+	def get(req)
+		ok("hello")
+	end
+end
+
 describe BaseHTTPHandler do
 	it "returns 404" do  
-		handler = BaseHTTPHandler.new ([] of Route)
+		handler = BaseHTTPHandler.new ({} of Route => Request -> Response)
 		req = HTTP::Request.new("GET", "/")
 		res = handler.call(req)
 		res.status_code.should eq (404)
 	end
 
 	it "handles get request" do
-		callable = EmptyCallable.new("hello")
-		handler = BaseHTTPHandler.new ([
-			Route.new("GET", "/", callable)
-			] of Moonshine::Route)
+		handler = BaseHTTPHandler.new ({
+			Route.new("GET", "/") => HelloController.new
+		} of Route => (Request -> Response) | Controller)
+
 		req = HTTP::Request.new("GET", "/")
 		res = handler.call(req)
 		res.status_code.should eq (200)
@@ -21,7 +27,7 @@ describe BaseHTTPHandler do
 	end
 
 	it "returns static file" do
-		handler = BaseHTTPHandler.new([] of Route,
+		handler = BaseHTTPHandler.new({} of Route => Request -> Response,
 			["spec/res"])
 		req = HTTP::Request.new("GET", "/static.txt")
 		res = handler.call(req)
@@ -29,4 +35,11 @@ describe BaseHTTPHandler do
 		res.body.should eq("hello")
 	end
 
+	it "returns 405 when controller method not defined" do
+		routes = {} of Route => (Request -> Response) | Controller
+		routes[Route.new("", "/")] = HelloController.new
+		handler = BaseHTTPHandler.new(routes)
+		res = handler.call(HTTP::Request.new("POST", "/"))
+		res.status_code.should eq 405
+	end
 end
