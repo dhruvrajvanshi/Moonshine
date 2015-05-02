@@ -23,6 +23,13 @@ Code speaks louder than words, so here's an example.
 		res.headers["Content-type"] = "text/json"
 		res
 	end
+
+## Form Parameters
+Moonshine automatically pases POST and GET parameters for you. The `get` and `post` properties are hashes of these params.
+
+	app.get "/putparams", do |request|
+		ok("<h1>POST<h1><p>#{request.post}</p><h2>GET<h2><p>#{request.get}</p>")
+	end
 	
 ## Controllers
 Controllers are objects which can respond to all HTTP verbs. You can override the methods get, post, etc to return responses. Base versions of these methods return a 405(method not allowed) response. Override them to change this behaviour.
