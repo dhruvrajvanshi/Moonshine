@@ -35,12 +35,19 @@ class Moonshine::App
 		server.listen()
 	end
 
-	# Add route for all methods to the app
-	# Takes in regex pattern and block
-	def route(regex, &block : Moonshine::Request -> Moonshine::Response)
+	def route(regex, &block : Request -> Response)
 		methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
 		methods.each do |method|
 			@routes[Moonshine::Route.new(method, regex)] = block
+		end
+	end
+
+	def add_router(router)
+		router.each do |route_string, block|
+			@routes[Route.new(
+				route_string.split(" ")[0],
+				route_string.split(" ")[1]
+			)] = block
 		end
 	end
 
@@ -80,7 +87,7 @@ class Moonshine::App
 	# methods for adding routes for individual
 	# HTTP verbs
 	{% for method in %w(get post put delete patch) %}
-		def {{method.id}}(path, &block : Moonshine::Request -> Moonshine::Response)
+		def {{method.id}}(path, &block : Request -> Response)
 			@routes[Moonshine::Route.new("{{method.id}}".upcase, path.to_s)] = block
 		end
 	{% end %}
@@ -92,7 +99,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 
 	def initialize(@routes = {} of Route => (Request -> Response) | Controller,
 		@static_dirs = [] of String,
-		@error_handlers = {} of Int32 => Moonshine::Request -> Moonshine::Response,
+		@error_handlers = {} of Int32 => Request -> Response,
 		@request_middleware = [] of Request -> MiddlewareResponse,
 		@response_middleware = [] of (Request, Response) -> Response)
 		# add default 404 handler if it isn't there
@@ -102,7 +109,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 	end
 
 	def call(base_request : HTTP::Request)
-		request = Moonshine::Request.new(base_request)
+		request = Request.new(base_request)
 		response = nil
 
 		# call request middleware
@@ -136,7 +143,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
 			@static_dirs.each do |dir|
 				filepath = File.join(dir, request.path)
 				if File.exists?(filepath)
-					response = Moonshine::Response.new(200, File.read(filepath), 
+					response = Response.new(200, File.read(filepath), 
 						HTTP::Headers{"Content-Type": mime_type(filepath)})
 				end
 			end

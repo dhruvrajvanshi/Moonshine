@@ -3,10 +3,11 @@ require "../src/moonshine"
 
 include Moonshine
 include Moonshine::Shortcuts
+include Moonshine::Http
 
 # Helper method
 def new_request(method, path)
-	Moonshine::Request.new(
+	Request.new(
 		HTTP::Request.new(method, path))
 end
 
