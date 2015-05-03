@@ -76,7 +76,8 @@ Override the call method of the controller to get custom routing within the cont
 				end
 			end
 			return Moonshine::Response.new(404, "unhandled route on controller")
-
+		end
+		
 		def get_post(id)
 			...
 		end
