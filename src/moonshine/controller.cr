@@ -1,3 +1,5 @@
+include Moonshine::Http
+
 abstract class Moonshine::Controller
 	{% for method in %w(get post put delete patch) %}
 		def {{method.id}}(req)

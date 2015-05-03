@@ -1,5 +1,6 @@
 require "http"
 require "regex"
+include Moonshine::Http
 
 class Moonshine::App
 	# Base class for Moonshine app

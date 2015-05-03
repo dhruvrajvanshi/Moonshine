@@ -1,3 +1,5 @@
+include Moonshine::Http
+
 class Moonshine::Route
 	# Moonshine route class
 	# Is a simple 2-tuple of a regex and a 
@@ -14,7 +16,7 @@ class Moonshine::Route
 	end
 
 	# Check if request matched the current route
-	def match?(request : Moonshine::Request)
+	def match?(request : Request)
 		# Non matching request method
 		return false unless (request.method == @method || @method == "")
 		path = request.path
@@ -32,7 +34,7 @@ class Moonshine::Route
 
 	# Returns hash of request parameters from
 	# request
-	def get_params(request : Moonshine::Request)
+	def get_params(request : Request)
 		# get request path
 		path = request.path
 		params = {} of String => String
