@@ -10,6 +10,11 @@ describe Request do
 		request.get["val2"].should eq("this is a query string &%")
 		request.get["val3"].should eq("!@#$%^&*()")
 	end
+	it "parses value only param" do
+		request = Request.new HTTP::Request.new("GET", "/?a")
+		request.path.should eq("/")
+		request.get["a"].should eq(true)
+	end
 end
 
 describe Response do
