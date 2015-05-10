@@ -22,8 +22,8 @@ module Moonshine::Http
       @headers = request.headers
       @params = {} of String => String
       @cookies = {} of String => String
-      @get = {} of String => String | Bool
-      @post = {} of String => String | Bool
+      @get = {} of String => String
+      @post = {} of String => String
       parse_cookies()
       parse_get_params()
       parse_post_params()
@@ -64,7 +64,7 @@ module Moonshine::Http
         query_string.split("&").each do |parameter|
           # hack to accept value less parameters; eg. ?a
           unless parameter.includes? "="
-            @get[parameter] = true
+            @get[parameter] = ""
             next
           end
           # raise "Invalid request query string" unless parameter.split("=").length <= 2
@@ -80,7 +80,7 @@ module Moonshine::Http
         body.split("&").each do |parameter|
           # hack to accept value less parameters; eg. ?a
           unless parameter.includes? "="
-            @post[parameter] = true
+            @post[parameter] = ""
             next
           end
           # raise "Invalid request query string" unless parameter.split("=").length <= 2

@@ -13,7 +13,7 @@ describe Request do
   it "parses value only param" do
     request = Request.new HTTP::Request.new("GET", "/?a")
     request.path.should eq("/")
-    request.get["a"].should eq(true)
+    request.get["a"].should eq("")
   end
 end
 
