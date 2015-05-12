@@ -12,11 +12,26 @@ describe Request do
     request.get["val4"].should eq(".~-_")
   end
   
-  # it "parses value only param" do
-  #  request = Request.new HTTP::Request.new("GET", "/?a")
-  #  request.path.should eq("/")
-  #  request.get.fetchAll(nil).should eq(["a"])
-  # end
+  it "parses value only query param" do
+    request = Request.new HTTP::Request.new("GET", "/?abc&xyz")
+    request.path.should eq("/")
+    request.get["abc"].should eq("")
+    request.get["xyz"].should eq("")
+  end
+  
+  it "parses query param of form =a" do
+    request = Request.new HTTP::Request.new("GET", "/?=abc=y")
+    request.path.should eq("/")
+    request.get.fetchAll("").should eq(["abc=y"])
+  end
+  it "parses POST params" do
+    head = HTTP::Headers.new
+    head["Content-type"] = "application/x-www-form-urlencoded"
+    request = Request.new HTTP::Request.new("GET", "/", headers=head, body="a=abc&b=pqr")
+    request.path.should eq("/")
+    request.post["a"].should eq("abc")
+    request.post["b"].should eq("pqr")
+  end
 end
 
 describe Response do

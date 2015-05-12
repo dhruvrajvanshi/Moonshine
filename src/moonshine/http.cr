@@ -24,7 +24,7 @@ module Moonshine::Http
       @params = {} of String => String
       @cookies = {} of String => String
       @get = ParameterHash.new
-      @post = {} of String => String
+      @post = ParameterHash.new
       parse_cookies()
       parse_get_params()
       parse_post_params()
@@ -65,31 +65,23 @@ module Moonshine::Http
       end
     end
 
+    private def parse_post_params()
+      if content_type.downcase == "application/x-www-form-urlencoded"
+        populate_params_hash(@post, body)
+      end
+    end
+
     private def populate_params_hash(hash, query_string)
       query_string.split("&").each do |parameter|
-          if parameter.match /[0-9a-zA-Z%.\-~_]+=[0-9a-zA-Z%.\-~_]+/
-            key = parameter.split("=")[0]
-            value = parameter.split("=")[1]
-            hash[decode_query_param(key)] = decode_query_param(value)
+          if m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(parameter)
+            key = decode_query_param(m["key"])
+            value = decode_query_param(m["value"])
+            hash.add(key, value)
           end
         end
     end
 
-    private def parse_post_params()
-      if content_type.downcase == "application/x-www-form-urlencoded"
-        body.split("&").each do |parameter|
-          # hack to accept value less parameters; eg. ?a
-          unless parameter.includes? "="
-            @post[parameter] = ""
-            next
-          end
-          # raise "Invalid request query string" unless parameter.split("=").length <= 2
-          key = parameter.split("=")[0]
-          value = parameter.split("=")[1]
-          @post[key] = decode_query_param(value)
-        end
-      end
-    end
+    
 
     ##
     # Unescape query parameter value
