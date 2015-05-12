@@ -13,6 +13,7 @@ module Moonshine::Http
     getter cookies
     getter get
     getter post
+    getter query_string
 
     def initialize(request : HTTP::Request)
       @path = request.path
@@ -22,7 +23,7 @@ module Moonshine::Http
       @headers = request.headers
       @params = {} of String => String
       @cookies = {} of String => String
-      @get = {} of String => String
+      @get = ParameterHash.new
       @post = {} of String => String
       parse_cookies()
       parse_get_params()
@@ -56,23 +57,22 @@ module Moonshine::Http
 
     private def parse_get_params()
       if @path.split("?").length > 1
-        raise "Invalid url #{@path};\
-          Url cannot contain more\
-          than one '?'" unless @path.split("?").length == 2
+        # ignore everything after second ?
         query_string = @path.split("?")[1]
+        @query_string = query_string
         @path = @path.split("?")[0]
-        query_string.split("&").each do |parameter|
-          # hack to accept value less parameters; eg. ?a
-          unless parameter.includes? "="
-            @get[parameter] = ""
-            next
-          end
-          # raise "Invalid request query string" unless parameter.split("=").length <= 2
-          key = parameter.split("=")[0]
-          value = parameter.split("=")[1]
-          @get[key] = decode_query_param(value)
-        end
+        populate_params_hash(@get, query_string)
       end
+    end
+
+    private def populate_params_hash(hash, query_string)
+      query_string.split("&").each do |parameter|
+          if parameter.match /[0-9a-zA-Z%.\-~_]+=[0-9a-zA-Z%.\-~_]+/
+            key = parameter.split("=")[0]
+            value = parameter.split("=")[1]
+            hash[decode_query_param(key)] = decode_query_param(value)
+          end
+        end
     end
 
     private def parse_post_params()
@@ -171,5 +171,73 @@ module Moonshine::Http
     def initialize(@response = Response.new(200, "Ok"),
       @pass_through = true)
     end
+  end
+  
+  struct ParameterHash
+    # ParameterHash is a hash that stores an array
+    # of strings mapped to each key
+    # To get the first value, call [] or fetch
+    # To get the array, call fetchAll
+    def initialize
+      @hash = {"" => [] of String} of String => Array(String)
+    end
+    
+    def []=(key, value : String)
+      self[key] = [value]
+    end
+    
+    def [](key)
+      fetch key
+    end
+    
+    def []?(key)
+      @hash[key]?
+    end
+    
+    def add(key, value : String)
+      existing = @hash[key]?
+      if existing
+        existing << value
+      else
+        @hash[key] = [value]
+      end
+      self
+    end
+    
+    def fetch(key)
+      values = @hash[key]?
+      if values
+        values[0]
+      else
+        nil
+      end
+    end
+    
+    def fetch(key, default)
+      fetch(key) { default }
+    end
+    
+    def has_key?(key)
+      @hash.has_key? key
+    end
+    
+    def empty?
+      @hash.empty?
+    end
+    
+    def fetchAll(key)
+      @hash[key]
+    end
+    
+    def get?(key)
+      @hash[key]?
+    end
+    
+    def to_s(io : IO)
+      io << "Moonshine::ParameterHash"
+      @hash.to_s(io)
+    end
+    
+    forward_missing_to @hash
   end
 end
