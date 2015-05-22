@@ -1,6 +1,7 @@
 require "http"
 require "regex"
 include Moonshine::Http
+include Moonshine::Shortcuts
 
 class Moonshine::App
   # Base class for Moonshine app
@@ -19,7 +20,7 @@ class Moonshine::App
     @logger = Moonshine::Logger.new
     # add default 404 handler
     error_handler 404, do |req|
-      Response.new(404, "Page not found")
+      not_found("Page not found")
     end
   end
 
@@ -52,7 +53,7 @@ class Moonshine::App
     end
   end
 
-  # Add request middleware. If handler returns a 
+  # Add request middleware. If handler returns a
   # response, no further handlers are called.
   # If nil is returned, the next handler is run
   def request_middleware(&block : Request -> MiddlewareResponse)
@@ -105,7 +106,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
     @response_middleware = [] of (Request, Response) -> Response)
     # add default 404 handler if it isn't there
     unless @error_handlers.has_key? 404
-      @error_handlers[404] = ->(request : Request) { Response.new(404, "Not found")}
+      @error_handlers[404] = ->(request : Request) { not_found("Not found")}
     end
   end
 
@@ -129,7 +130,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
           # controller found
           request.set_params(route.get_params(request))
           response = block.call(request)
-          
+
           # check if there's an error handler defined
           if response.status_code >= 400 && @error_handlers.has_key? response.status_code
             response = @error_handlers[response.status_code].call(request)
@@ -144,7 +145,7 @@ class Moonshine::BaseHTTPHandler < HTTP::Handler
       @static_dirs.each do |dir|
         filepath = File.join(dir, request.path)
         if File.exists?(filepath)
-          response = Response.new(200, File.read(filepath), 
+          response = Response.new(200, File.read(filepath),
             HTTP::Headers{"Content-Type": mime_type(filepath)})
         end
       end

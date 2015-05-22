@@ -16,7 +16,7 @@ class PostController
     end
     post = Post.new req.post["text"]
     @posts << post
-    Response.new(201, 
+    Response.new(201,
       "{ message : 'Post created successfully' }",
     )
   end
@@ -31,11 +31,10 @@ class PostController
     @posts.each do |post|
       if post.id == id
         return Response.new(200,
-          post.to_s) 
+          post.to_s)
       end
     end
-    return Response.new(404,
-      "{ message : 'Post id #{id} not found on the server'")
+    return not_found("{ message : 'Post id #{id} not found on the server'}")
   end
 
   def delete(req : Request)
@@ -63,7 +62,7 @@ class Post
   @@postcount = 0
   def initialize(@text)
     @@postcount += 1
-    @id = @@postcount 
+    @id = @@postcount
   end
 
   def to_s
@@ -76,8 +75,8 @@ postCtrl = PostController.new # Instantiate controller
 
 routes = {
   "GET /posts" =>
-    ->(req : Request) { 
-      postCtrl.get_all(req) 
+    ->(req : Request) {
+      postCtrl.get_all(req)
     },
   "POST /posts" =>
     -> (req : Request) {
