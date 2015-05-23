@@ -7,7 +7,7 @@ Code speaks louder than words, so here's an example.
 	include Moonshine::Shortcuts
 
 	app = Moonshine::App.new
-	
+
 	# respond to all HTTP verbs
 	app.route "/", do |request|
 		ok("Hello Moonshine!")
@@ -33,12 +33,12 @@ Moonshine automatically pases POST and GET parameters for you. The `get` and `po
 	app.get "/putparams", do |request|
 		ok("<h1>POST<h1><p>#{request.post}</p><h2>GET<h2><p>#{request.get}</p>")
 	end
-```
-	
+```crystal
+
 ## Controllers
 Controllers are objects which can respond to all HTTP verbs. You can override the methods get, post, etc to return responses. Base versions of these methods return a 405(method not allowed) response. Override them to change this behaviour.
 
-```crystal	
+```crystal
 	# subclass Moonshine::Controller to define a controller
 	class HomeController < Moonshine::Controller
 		def initialize()
@@ -74,8 +74,8 @@ Override the call method of the controller to get custom routing within the cont
 					->(req : Request) { get_post(req.params["id"]) }
 			} of String => (Request -> Response)
 		end
-		
-		def call(req : Moonshine::Request)		
+
+		def call(req : Moonshine::Request)
 			@router.each do |route, block|
 				if Route.new(route.split(" ")[0],
 					route.split(" ")[1]).match? req
@@ -84,7 +84,7 @@ Override the call method of the controller to get custom routing within the cont
 			end
 			return Moonshine::Response.new(404, "unhandled route on controller")
 		end
-		
+
 		def get_post(id)
 			...
 		end
@@ -101,18 +101,19 @@ Override the call method of the controller to get custom routing within the cont
 ```
 
 ## Error Handlers
-	# add error handlers
-
 ```crystal
+	# add error handlers
+	include Moonshine::Shortcuts
 	app.error_handler "404", do |req|
-		Moonshine::Response.new(404, "Not found")
+		Moonshine::not_found
 	end
 ```
 
 ## Middleware
 ### Request Middleware
-	# add request middleware
+
 ```crystal
+	# add request middleware
 	app.request_middleware do |req|
 		unless req.headers["user"]
 			Moonshine::MiddlewareResponse.new(
@@ -128,21 +129,18 @@ Override the call method of the controller to get custom routing within the cont
 To add a request middleware, call app.request_middleware with a block that returns a Moonshine::MiddlewareResponse object. If the @pass_through attribute of the MiddlewareResponse is true, other request middlewares will be called. Otherwise the @response attribute will be directly returned
 
 ### Response Middleware
-	# add response middleware
-
 ```crystal
+	# add response middleware
 	app.response_middleware do |req, res|
 		res.body = "Modified"
 		res
 	end
 ```
-
 Response middleware methods take request and response arguments and return a response. This is used to globally alter the response of the application. Response middleware are processed in order
 
 ## Static Files
 To serve a static directory, pass an array of paths to Moonshine::App's constructor
 
-```crystal	
+```crystal
 	app = Moonshine::App.new(static_dirs = ["res"])
 ```
-
