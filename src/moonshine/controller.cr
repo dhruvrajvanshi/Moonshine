@@ -1,8 +1,8 @@
 include Moonshine::Http
 
 abstract class Moonshine::Controller
-  {% for method in %w(get post put delete patch) %}
-    def {{method.id}}(req)
+  {% for method in Moonshine::Http::METHODS %}
+    def {{method.id.downcase}}(req)
       Response.new(405, "Method not allowed")
     end
   {% end %}

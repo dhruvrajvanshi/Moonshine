@@ -2,6 +2,8 @@ require "http"
 require "time"
 
 module Moonshine::Http
+  METHODS = %w(GET POST PUT DELETE PATCH)
+
 
   class Request
     getter params
@@ -81,7 +83,7 @@ module Moonshine::Http
         end
     end
 
-    
+
 
     ##
     # Unescape query parameter value
@@ -133,7 +135,7 @@ module Moonshine::Http
       #   cookie_string = serialize_cookies()
       #   @headers["Set-Cookie"] = cookie_string
       # end
-      return HTTP::Response.new(@status_code, @body, 
+      return HTTP::Response.new(@status_code, @body,
         headers = @headers, version = @version)
     end
 
@@ -155,7 +157,7 @@ module Moonshine::Http
     # Return type for request middleware
     # if @pass_through is true the next middleware
     # will be called. Otherwise, Response will be
-    # returned 
+    # returned
 
     getter response
     getter pass_through
@@ -164,7 +166,7 @@ module Moonshine::Http
       @pass_through = true)
     end
   end
-  
+
   struct ParameterHash
     # ParameterHash is a hash that stores an array
     # of strings mapped to each key
@@ -173,19 +175,19 @@ module Moonshine::Http
     def initialize
       @hash = {"" => [] of String} of String => Array(String)
     end
-    
+
     def []=(key, value : String)
       self[key] = [value]
     end
-    
+
     def [](key)
       fetch key
     end
-    
+
     def []?(key)
       @hash[key]?
     end
-    
+
     def add(key, value : String)
       existing = @hash[key]?
       if existing
@@ -195,7 +197,7 @@ module Moonshine::Http
       end
       self
     end
-    
+
     def fetch(key)
       values = @hash[key]?
       if values
@@ -204,32 +206,32 @@ module Moonshine::Http
         nil
       end
     end
-    
+
     def fetch(key, default)
       fetch(key) { default }
     end
-    
+
     def has_key?(key)
       @hash.has_key? key
     end
-    
+
     def empty?
       @hash.empty?
     end
-    
+
     def fetchAll(key)
       @hash[key]
     end
-    
+
     def get?(key)
       @hash[key]?
     end
-    
+
     def to_s(io : IO)
       io << "Moonshine::ParameterHash"
       @hash.to_s(io)
     end
-    
+
     forward_missing_to @hash
   end
 end
