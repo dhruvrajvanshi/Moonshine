@@ -1,6 +1,7 @@
 require "../src/moonshine"
-include Moonshine::Shortcuts
+include Moonshine::Utils::Shortcuts
 include Moonshine::Http
+include Moonshine::Base
 
 class PostController
   def initialize
@@ -16,7 +17,7 @@ class PostController
     end
     post = Post.new req.post["text"]
     @posts << post
-    Response.new(201, 
+    Response.new(201,
       "{ message : 'Post created successfully' }",
     )
   end
@@ -31,7 +32,7 @@ class PostController
     @posts.each do |post|
       if post.id == id
         return Response.new(200,
-          post.to_s) 
+          post.to_s)
       end
     end
     return Response.new(404,
@@ -63,7 +64,7 @@ class Post
   @@postcount = 0
   def initialize(@text)
     @@postcount += 1
-    @id = @@postcount 
+    @id = @@postcount
   end
 
   def to_s
@@ -71,13 +72,13 @@ class Post
   end
 end
 
-app = Moonshine::App.new  # Instantiate app
+app = App.new  # Instantiate app
 postCtrl = PostController.new # Instantiate controller
 
 routes = {
   "GET /posts" =>
-    ->(req : Request) { 
-      postCtrl.get_all(req) 
+    ->(req : Request) {
+      postCtrl.get_all(req)
     },
   "POST /posts" =>
     -> (req : Request) {
