@@ -1,5 +1,3 @@
-require "time"
-
 class Logger
   # Default logger class for Moonshine
 

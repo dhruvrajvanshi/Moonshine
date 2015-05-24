@@ -6,6 +6,7 @@ require "time"
 
 module Moonshine
   module Http
+    VERSION = "0.0.1"
     METHODS = %w(GET POST PUT DELETE PATCH)
 
     require "./parameter_hash"

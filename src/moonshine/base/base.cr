@@ -9,6 +9,7 @@ include Moonshine::Http
 
 module Moonshine
   module Base
+    VERSION = "0.0.1"
     require "./app"
     require "./controller"
     require "./route.cr"

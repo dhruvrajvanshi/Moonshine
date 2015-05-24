@@ -5,6 +5,7 @@ require "time"
 
 module Moonshine
   module Utils
+    VERSION = "0.0.1"
     require "./logger"
     require "./shortcuts"   # inner module : Moonshine::Utils::Shortcuts
   end
