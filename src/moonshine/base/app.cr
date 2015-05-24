@@ -1,6 +1,5 @@
 require "http"
 require "regex"
-include Moonshine::Http
 
 module Moonshine
   class App
@@ -17,7 +16,7 @@ module Moonshine
       @error_handlers = {} of Int32 => Request -> Response,
       @request_middleware = [] of Request -> MiddlewareResponse,
       @response_middleware = [] of (Request, Response) -> Response)
-      @logger = Moonshine::Logger.new
+      @logger = Utils::Logger.new
       # add default 404 handler
       error_handler 404, do |req|
         Response.new(404, "Page not found")
@@ -32,13 +31,13 @@ module Moonshine
     def run(port = 8000)
       # Run the webapp on the specified port
       puts "Moonshine serving at port #{port}..."
-      server = HTTP::Server.new(port, BaseHTTPHandler.new(@routes, @static_dirs,
+      server = HTTP::Server.new(port, Http::Handler.new(@routes, @static_dirs,
         @error_handlers, @request_middleware, @response_middleware))
       server.listen()
     end
 
     def route(regex, &block : Request -> Response)
-      Moonshine::Http::METHODS.each do |method|
+      Http::METHODS.each do |method|
         @routes[Moonshine::Route.new(method, regex)] = block
       end
     end

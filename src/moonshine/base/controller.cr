@@ -1,7 +1,5 @@
-include Moonshine::Http
-
-abstract class Moonshine::Controller
-  {% for method in Moonshine::Http::METHODS %}
+abstract class Controller
+  {% for method in Http::METHODS %}
     def {{method.id.downcase}}(req)
       Response.new(405, "Method not allowed")
     end

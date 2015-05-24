@@ -1,4 +1,4 @@
-class BaseHTTPHandler < HTTP::Handler
+class Handler < HTTP::Handler
   # Main HTTP handler class for Moonshine. It's call method
   # is called by the HTTP server when a request is received
 

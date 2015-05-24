@@ -1,6 +1,6 @@
 require "../src/moonshine"
 include Moonshine
-include Moonshine::Shortcuts
+include Moonshine::Utils::Shortcuts
 
 
 viewcount = 0

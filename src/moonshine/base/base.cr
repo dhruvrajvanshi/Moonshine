@@ -1,3 +1,5 @@
+include Moonshine::Http
+
 module Moonshine
   module Base
     require "./app"

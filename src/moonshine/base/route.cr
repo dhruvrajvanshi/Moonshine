@@ -1,5 +1,3 @@
-include Moonshine::Http
-
 class Route
   # Moonshine route class
   # Is a simple 2-tuple of a regex and a
