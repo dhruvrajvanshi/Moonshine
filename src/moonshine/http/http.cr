@@ -1,3 +1,6 @@
+#requires all module files into namespace Moonshine::Base
+#also, includes all Moonshine and Crystal modules that it depends on
+
 require "http"
 require "time"
 

@@ -1,6 +1,5 @@
 require "../src/moonshine"
 include Moonshine::Utils::Shortcuts
-include Moonshine::Http
 include Moonshine::Base
 
 class PostController

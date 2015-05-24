@@ -1,5 +1,5 @@
 abstract class Controller
-  {% for method in Http::METHODS %}
+  {% for method in METHODS %}
     def {{method.id.downcase}}(req)
       Response.new(405, "Method not allowed")
     end

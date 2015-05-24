@@ -59,7 +59,7 @@ struct ParameterHash
   end
 
   def to_s(io : IO)
-    io << "Moonshine::ParameterHash"
+    io << "Moonshine::Http::ParameterHash"
     @hash.to_s(io)
   end
 

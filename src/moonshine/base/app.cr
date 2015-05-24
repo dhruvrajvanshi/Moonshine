@@ -1,6 +1,3 @@
-require "http"
-require "regex"
-
 class App
   # Base class for Moonshine app
   getter server
@@ -36,7 +33,7 @@ class App
   end
 
   def route(regex, &block : Request -> Response)
-    Http::METHODS.each do |method|
+    METHODS.each do |method|
       @routes[Route.new(method, regex)] = block
     end
   end
