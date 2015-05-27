@@ -3,27 +3,32 @@ Moonshine is a minimal web framework for the Crystal language.
 Code speaks louder than words, so here's an example.
 
 ```crystal
-	include Moonshine
-	include Moonshine::Shortcuts
+require "moonshine"
 
-	app = Moonshine::App.new
+    include Moonshine
+    include Moonshine::Utils::Shortcuts
+    include Moonshine::Base
+    
+    app = App.new
 
-	# respond to all HTTP verbs
-	app.route "/", do |request|
-		ok("Hello Moonshine!")
-	end
+    # respond to all HTTP verbs
+    app.route "/", do |request|
+        ok("Hello Moonshine!")
+    end
 
-	# or particular HTTP verbs
-	app.get "/get", do |request|
-		ok("This is a get response")
-	end
+    # or particular HTTP verbs
+    app.get "/get", do |request|
+        ok("This is a get response")
+    end
 
-	# you can set response headers
-	app.get "api", do |request|
-		res = ok("{ name : 'moonshine'}")
-		res.headers["Content-type"] = "text/json"
-		res
-	end
+    # you can set response headers
+    app.get "api", do |request|
+        res = ok("{ name : 'moonshine'}")
+        res.headers["Content-type"] = "text/json"
+        res
+    end
+
+    app.run(8000)
 ```
 
 ## Form Parameters
@@ -142,5 +147,5 @@ Response middleware methods take request and response arguments and return a res
 To serve a static directory, pass an array of paths to Moonshine::App's constructor
 
 ```crystal
-	app = Moonshine::App.new(static_dirs = ["res"])
+	app = App.new(static_dirs = ["res"])
 ```
