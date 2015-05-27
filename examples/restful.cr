@@ -1,6 +1,6 @@
 require "../src/moonshine"
-include Moonshine::Shortcuts
-include Moonshine::Http
+include Moonshine::Utils::Shortcuts
+include Moonshine::Base
 
 class PostController
   def initialize
@@ -70,7 +70,7 @@ class Post
   end
 end
 
-app = Moonshine::App.new  # Instantiate app
+app = App.new  # Instantiate app
 postCtrl = PostController.new # Instantiate controller
 
 routes = {

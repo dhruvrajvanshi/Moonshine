@@ -1,6 +1,4 @@
-require "time"
-
-class Moonshine::Logger
+class Logger
   # Default logger class for Moonshine
 
   def initialize()

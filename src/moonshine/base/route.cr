@@ -1,8 +1,6 @@
-include Moonshine::Http
-
-class Moonshine::Route
+class Route
   # Moonshine route class
-  # Is a simple 2-tuple of a regex and a 
+  # Is a simple 2-tuple of a regex and a
   # controller class name
 
   getter pattern
@@ -10,7 +8,7 @@ class Moonshine::Route
 
   def initialize(@method, @pattern)
     # strip trailing slash
-    unless @pattern == "/" 
+    unless @pattern == "/"
       @pattern = @pattern.gsub(/\/$/, "")
     end
   end
@@ -18,7 +16,7 @@ class Moonshine::Route
   # Check if request matched the current route
   def match?(request : Request)
     # Non matching request method
-    return false unless (request.method == @method || @method == "")
+    return false unless (request.method == @method || @method == "" )
     path = request.path
     # return path == "/" if @path == "/"
     return false if path.split("/").length !=

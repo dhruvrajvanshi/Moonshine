@@ -7,16 +7,16 @@ class HelloController < Controller
   end
 end
 
-describe BaseHTTPHandler do
-  it "returns 404" do  
-    handler = BaseHTTPHandler.new ({} of Route => Request -> Response)
+describe Handler do
+  it "returns 404" do
+    handler = Handler.new ({} of Route => Request -> Response)
     req = HTTP::Request.new("GET", "/")
     res = handler.call(req)
     res.status_code.should eq (404)
   end
 
   it "handles get request" do
-    handler = BaseHTTPHandler.new ({
+    handler = Handler.new ({
       Route.new("GET", "/") => HelloController.new
     } of Route => (Request -> Response) | Controller)
 
@@ -27,7 +27,7 @@ describe BaseHTTPHandler do
   end
 
   it "returns static file" do
-    handler = BaseHTTPHandler.new({} of Route => Request -> Response,
+    handler = Handler.new({} of Route => Request -> Response,
       ["spec/res"])
     req = HTTP::Request.new("GET", "/static.txt")
     res = handler.call(req)
@@ -38,7 +38,7 @@ describe BaseHTTPHandler do
   it "returns 405 when controller method not defined" do
     routes = {} of Route => (Request -> Response) | Controller
     routes[Route.new("", "/")] = HelloController.new
-    handler = BaseHTTPHandler.new(routes)
+    handler = Handler.new(routes)
     res = handler.call(HTTP::Request.new("POST", "/"))
     res.status_code.should eq 405
   end
