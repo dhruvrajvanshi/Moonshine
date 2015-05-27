@@ -1,6 +1,3 @@
-require "./moonshine/logger"
 require "./moonshine/http"
-require "./moonshine/route"
-require "./moonshine/shortcuts"
-require "./moonshine/controller"
-require "./moonshine/app"
+require "./moonshine/base"
+require "./moonshine/utils"

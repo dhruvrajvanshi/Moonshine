@@ -1,11 +1,11 @@
 require "../src/moonshine"
-include Moonshine
-include Moonshine::Shortcuts
+include Moonshine::Base
+include Moonshine::Utils::Shortcuts
 
 
 viewcount = 0
 
-app = Moonshine::App.new
+app = App.new
 app.define do
 
   get "/", do |request|
