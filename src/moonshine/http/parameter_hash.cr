@@ -36,7 +36,12 @@ struct ParameterHash
   end
 
   def fetch(key, default)
-    fetch(key) { default }
+    begin
+      val = fetch(key)
+    rescue Exceptions::KeyNotFound
+      val = default
+    end
+    val
   end
 
   def has_key?(key)
