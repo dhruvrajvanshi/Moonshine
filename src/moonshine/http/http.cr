@@ -4,6 +4,8 @@
 require "http"
 require "time"
 
+include Moonshine::Exceptions
+
 module Moonshine
   module Http
     VERSION = "0.0.1"

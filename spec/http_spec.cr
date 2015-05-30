@@ -31,6 +31,12 @@ describe Request do
     request.path.should eq("/")
     request.post["a"].should eq("abc")
     request.post["b"].should eq("pqr")
+    begin
+      a = request.post["adsfasdf"]
+    rescue Moonshine::Exceptions::KeyNotFound
+      a = "blank"
+    end
+    a.should eq "blank"
   end
 end
 

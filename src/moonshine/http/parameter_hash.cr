@@ -31,11 +31,8 @@ struct ParameterHash
 
   def fetch(key)
     values = @hash[key]?
-    if values
-      values[0]
-    else
-      nil
-    end
+    raise Exceptions::KeyNotFound.new(key) unless values
+    values[0]
   end
 
   def fetch(key, default)
