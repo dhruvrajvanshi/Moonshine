@@ -74,22 +74,10 @@ app = App.new  # Instantiate app
 postCtrl = PostController.new # Instantiate controller
 
 routes = {
-  "GET /posts" =>
-    ->(req : Request) {
-      postCtrl.get_all(req)
-    },
-  "POST /posts" =>
-    -> (req : Request) {
-      postCtrl.create(req)
-    }
-  "GET /posts/:id" =>
-    -> (req : Request) {
-      postCtrl.get(req)
-    }
-  "DELETE /posts/:id" =>
-    -> (req : Request) {
-      postCtrl.delete(req)
-    }
+  "GET /posts" => ->postCtrl.get_all(Request),
+  "POST /posts" => ->postCtrl.create(Request),
+  "GET /posts/:id" => ->postCtrl.get(Request),
+  "DELETE /posts/:id" => ->postCtrl.delete(Request)
 } of String => Request -> Response
 
 # add routes
