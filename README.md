@@ -41,29 +41,29 @@ Moonshine automatically pases POST and GET parameters for you. The `get` and `po
 ```
 
 ## Controllers
-Controllers are objects which can respond to all HTTP verbs. You can override the methods get, post, etc to return responses. Base versions of these methods return a 405(method not allowed) response. Override them to change this behaviour.
-
+Controllers are objects which can respond to multiple routes. Set the @rotuer instance variable of a controller to specify routing within controller. Add the controller to the app using app.controller method. Thse first argument can be a path pattern or an array of patterns to which the controller should respond
 ```crystal
-	# subclass Moonshine::Controller to define a controller
-	class HomeController < Moonshine::Controller
-		def initialize()
-			@viewcount = 0
-		end
-
-		# Override individual HTTP methods
-		def get(req)
-			@viewcount += 1
-			ok("This page has been visited #{@viewcount} times.")
-		end
+# subclass Moonshine::Base::Controller to define a controller
+class HomeController < Controller
+	def initialize()
+		@viewcount = 0
+		@router = {
+			"GET /" => ->get(Request),
+		} of String => (Request -> Response)
 	end
 
-	# Bind controller to the app object
-	app.controller "/", HomeController.new
+	def get(req)
+		@viewcount += 1
+		ok("This page has been visited #{@viewcount} times.")
+	end
+end
+
+# Bind controller to the app object
+app.controller "/", HomeController.new
+
 ```
 
 app.controller can also take an Array of strings as first argument to match multiple routes with the controller.
-
-Override the call method of the controller to get custom routing within the controller.
 
 ```crystal
 	class PostController < Moonshine::Controller
@@ -74,27 +74,17 @@ Override the call method of the controller to get custom routing within the cont
 					 ] of Post
 			@router = {
 				"GET /posts" =>
-					->(req : Request) { get_all_posts() },
+					->get_all_posts(Request),
 				"GET /posts/:id" =>
-					->(req : Request) { get_post(req.params["id"]) }
+					->get_post(Request)
 			} of String => (Request -> Response)
 		end
 
-		def call(req : Moonshine::Request)
-			@router.each do |route, block|
-				if Route.new(route.split(" ")[0],
-					route.split(" ")[1]).match? req
-					return block.call(req)
-				end
-			end
-			return Moonshine::Response.new(404, "unhandled route on controller")
-		end
-
-		def get_post(id)
+		def get_post(req)
 			...
 		end
 
-		def get_all_posts()
+		def get_all_posts(req)
 			...
 		end
 	end

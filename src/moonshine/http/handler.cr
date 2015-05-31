@@ -33,7 +33,9 @@ class Handler < HTTP::Handler
           # controller found
           request.set_params(route.get_params(request))
           response = block.call(request)
-
+          unless response
+            next
+          end
           # check if there's an error handler defined
           if response.status_code >= 400 && @error_handlers.has_key? response.status_code
             response = @error_handlers[response.status_code].call(request)

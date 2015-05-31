@@ -1,18 +1,18 @@
 abstract class Controller
-  {% for method in METHODS %}
-    def {{method.id.downcase}}(req)
-      Response.new(405, "Method not allowed")
-    end
-  {% end %}
-
+  property router
+  
+  @router = {
+  } of String => Request -> Response
+  
   def call(request)
-    case request.method
-    when "GET" then get(request)
-    when "POST" then post(request)
-    when "PUT" then put(request)
-    when "DELETE" then delete(request)
-    when "PATCH" then patch(request)
-    else Response.new(405, "Method not allowed")
+    @router.each do |route, block|
+      method = route.split(" ")[0]
+      path   = route.split(" ")[1]
+      if Route.new(method, path).match?(request)
+        return block.call(request)
+      end
     end
+    return nil
   end
+
 end
