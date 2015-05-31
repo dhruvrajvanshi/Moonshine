@@ -2,6 +2,11 @@ require "./spec_helper"
 require "http"
 
 class HelloController < Controller
+  def initialize
+    @router = {
+      "GET /" => ->get(Request)
+    }
+  end
   def get(req)
     ok("hello")
   end
@@ -35,11 +40,11 @@ describe Handler do
     res.body.should eq("hello")
   end
 
-  it "returns 405 when controller method not defined" do
+  it "returns 404 when controller method not defined" do
     routes = {} of Route => (Request -> Response) | Controller
     routes[Route.new("", "/")] = HelloController.new
     handler = Handler.new(routes)
     res = handler.call(HTTP::Request.new("POST", "/"))
-    res.status_code.should eq 405
+    res.status_code.should eq 404
   end
 end
