@@ -7,7 +7,8 @@ class Handler < HTTP::Handler
     @error_handlers = {} of Int32 => Request -> Response,
     @request_middleware = [] of Request -> MiddlewareResponse,
     @response_middleware = [] of (Request, Response) -> Response,
-    @middleware_objects  = [] of Middleware::Base
+    @middleware_objects  = [] of Middleware::Base,
+    @controllers         = [] of Controller
     )
     # add default 404 handler if it isn't there
     unless @error_handlers.has_key? 404
@@ -33,6 +34,14 @@ class Handler < HTTP::Handler
       instance.process_request(request)
     end
 
+    # Check if a controller handles the route
+    unless response
+      @controllers.each do |controller|
+        if controller.handles? request
+          response = controller.call(request)
+        end
+      end
+    end
 
     unless response
       # search @routes for matching route

@@ -41,15 +41,16 @@ end
 ```
 
 ## Controllers
-Controllers are objects which can respond to multiple routes. Set the @rotuer instance variable of a controller to specify routing within controller. Add the controller to the app using app.controller method. Thse first argument can be a path pattern or an array of patterns to which the controller should respond
+Controllers are objects which can respond to multiple routes. Set the @rotuer instance variable of a controller to specify routing within controller. Add the controller to the app using app.controller method.
+@router maps between a route and an action. Action can be any object with a call method (usually a Proc).
 ```crystal
 # subclass Moonshine::Base::Controller to define a controller
-class HomeController < Controller
+class HomeController < Moonshine::Base::Controller
 	def initialize()
 		@viewcount = 0
 		@router = {
 			"GET /" => ->get(Request),
-		} of String => (Request -> Response)
+		}
 	end
 
 	def get(req)
@@ -63,21 +64,19 @@ app.controller "/", HomeController.new
 
 ```
 
-app.controller can also take an Array of strings as first argument to match multiple routes with the controller.
-
+An action can also be a string containing the method name provided that the method is defined in the controller, and the controller name symbol has been passed to the actions macro in the controller definition.
 ```crystal
-class PostController < Moonshine::Controller
+class PostController < Moonshine::Base::Controller
+	actions :get_all_posts, :get_post
 	def initialize()
 		@posts = [
 					Post.new("Post1"),
 					Post.new("Post2")
 				 ] of Post
 		@router = {
-			"GET /posts" =>
-				->get_all_posts(Request),
-			"GET /posts/:id" =>
-				->get_post(Request)
-		} of String => (Request -> Response)
+			"GET /posts" =>"get_all_posts",
+			"GET /posts/:id" => "get_post"
+		}
 	end
 
 	def get_post(req)
@@ -89,11 +88,9 @@ class PostController < Moonshine::Controller
 	end
 end
 
-app.controller([
-		"/posts",
-		"/posts/:id"
-	] of String, PostController.new)
+app.controller(PostController.new)
 ```
+String and proc actions can also be mixed in a single router.
 
 ## Error Handlers
 ```crystal

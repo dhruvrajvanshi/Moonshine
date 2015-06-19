@@ -2,9 +2,10 @@ require "./spec_helper"
 require "http"
 
 class HelloController < Controller
+  actions :get
   def initialize
     @router = {
-      "GET /" => ->get(Request)
+      "GET /" => "get"
     }
   end
   def get(req)

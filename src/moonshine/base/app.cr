@@ -11,7 +11,8 @@ class App
     @error_handlers     = {} of Int32 => Request -> Response,
     @request_middleware = [] of Request -> MiddlewareResponse,
     @response_middleware = [] of (Request, Response) -> Response,
-    @middleware_objects  = [] of Middleware::Base
+    @middleware_objects  = [] of Middleware::Base,
+    @controllers         = [] of Base::Controller
   )
     # add default 404 handler
     error_handler 404, do |req|
@@ -28,7 +29,8 @@ class App
     # Run the webapp on the specified port
     puts "Moonshine serving at port #{port}..."
     server = HTTP::Server.new(port, Handler.new(@routes, @static_dirs,
-      @error_handlers, @request_middleware, @response_middleware, @middleware_objects))
+      @error_handlers, @request_middleware, @response_middleware,
+      @middleware_objects, @controllers))
     server.listen()
   end
 
@@ -84,15 +86,15 @@ class App
     @static_dirs << path
   end
 
-  def controller(path, controller : Controller)
-    @routes[Route.new("", path)] = controller
+  def controller(controller : Controller)
+    @controllers << controller
   end
 
-  def controller(paths : Array(String), controller : Controller)
-    paths.each do |path|
-      controller(path, controller)
-    end
-  end
+  # def controller(paths : Array(String), controller : Controller)
+  #   paths.each do |path|
+  #     controller(path, controller)
+  #   end
+  # end
 
   # methods for adding routes for individual
   # HTTP verbs

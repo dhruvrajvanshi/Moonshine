@@ -2,7 +2,14 @@ require "../src/moonshine"
 include Moonshine::Utils::Shortcuts
 include Moonshine::Base
 
-class PostController
+class PostController < Controller
+  actions :get_all, :create, :get, :delete
+  @router = {
+    "GET /posts" => "get_all",
+    "POST /posts" => "create",
+    "GET /posts/:id" => "get",
+    "DELETE /posts/:id" => "delete"
+  }
   def initialize
     @posts = [] of Post
   end
@@ -73,16 +80,7 @@ end
 app = App.new  # Instantiate app
 postCtrl = PostController.new # Instantiate controller
 
-routes = {
-  "GET /posts" => ->postCtrl.get_all(Request),
-  "POST /posts" => ->postCtrl.create(Request),
-  "GET /posts/:id" => ->postCtrl.get(Request),
-  "DELETE /posts/:id" => ->postCtrl.delete(Request)
-} of String => Request -> Response
-
-# add routes
-app.add_router(routes)
-
+app.controller(postCtrl)
 # Globally set response type to json
 app.response_middleware do |req, res|
   res.set_header("Content-type", "text/json")

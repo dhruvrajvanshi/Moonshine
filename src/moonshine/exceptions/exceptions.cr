@@ -1,6 +1,5 @@
 module Moonshine
   module Exceptions
-    VERSION = "0.0.1"
 
     class MoonshineException < Exception
 	end
