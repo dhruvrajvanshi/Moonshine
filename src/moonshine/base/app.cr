@@ -75,6 +75,12 @@ class App
     end
   end
 
+  def middleware_classes(classes)
+    classes.each do |cls|
+      middleware_object(cls.new)
+    end
+  end
+
   # Add handler for given error code
   # multiple calls for the same error code result
   # in overriding the previous handler
