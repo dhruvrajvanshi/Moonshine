@@ -15,6 +15,5 @@ module Moonshine
     require "./request"
     require "./response"
     require "./middleware_response"
-    require "./handler"
   end
 end

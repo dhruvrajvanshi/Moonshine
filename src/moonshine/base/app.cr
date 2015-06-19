@@ -27,7 +27,7 @@ class App
   def run(port = 8000)
     # Run the webapp on the specified port
     puts "Moonshine serving at port #{port}..."
-    server = HTTP::Server.new(port, Http::Handler.new(@routes, @static_dirs,
+    server = HTTP::Server.new(port, Handler.new(@routes, @static_dirs,
       @error_handlers, @request_middleware, @response_middleware))
     server.listen()
   end

@@ -13,5 +13,6 @@ module Moonshine
     require "./app"
     require "./controller"
     require "./route.cr"
+    require "./handler"
   end
 end
