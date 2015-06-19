@@ -5,6 +5,7 @@
 require "http"
 require "regex"
 
+include Moonshine
 include Moonshine::Http
 
 module Moonshine

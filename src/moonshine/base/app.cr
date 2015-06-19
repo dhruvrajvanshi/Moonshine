@@ -2,17 +2,17 @@ class App
   # Base class for Moonshine app
   getter server
   getter routes
-  getter logger
   getter static_dirs
 
 
   def initialize(
-    @static_dirs = [] of String,
-    @routes = {} of Route => (Request -> Response) | Controller,
-    @error_handlers = {} of Int32 => Request -> Response,
+    @static_dirs  = [] of String,
+    @routes       = {} of Route => (Request -> Response) | Controller,
+    @error_handlers     = {} of Int32 => Request -> Response,
     @request_middleware = [] of Request -> MiddlewareResponse,
-    @response_middleware = [] of (Request, Response) -> Response)
-    @logger = Utils::Logger.new
+    @response_middleware = [] of (Request, Response) -> Response,
+    @middleware_objects  = [] of Middleware::Base
+  )
     # add default 404 handler
     error_handler 404, do |req|
       Response.new(404, "Page not found")
@@ -28,7 +28,7 @@ class App
     # Run the webapp on the specified port
     puts "Moonshine serving at port #{port}..."
     server = HTTP::Server.new(port, Handler.new(@routes, @static_dirs,
-      @error_handlers, @request_middleware, @response_middleware))
+      @error_handlers, @request_middleware, @response_middleware, @middleware_objects))
     server.listen()
   end
 
@@ -59,6 +59,20 @@ class App
   def response_middleware(&block : (Request, Response) -> Response)
     @response_middleware << block
   end
+
+  ##
+  # Add middleware class. Pass in Middleware::Base instance
+  # with overridden process_request and process_response methods
+  def middleware_object(instance : Middleware::Base)
+    @middleware_objects << instance
+  end
+
+  def middleware_objects(objects : Array(Middleware::Base))
+    objects.each do |object|
+      middleware_object(object)
+    end
+  end
+
   # Add handler for given error code
   # multiple calls for the same error code result
   # in overriding the previous handler

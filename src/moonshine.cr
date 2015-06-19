@@ -1,4 +1,5 @@
 require "./moonshine/exceptions"
 require "./moonshine/http"
+require "./moonshine/middleware"
 require "./moonshine/base"
 require "./moonshine/utils"

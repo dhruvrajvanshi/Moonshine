@@ -6,7 +6,9 @@ class Handler < HTTP::Handler
     @static_dirs = [] of String,
     @error_handlers = {} of Int32 => Request -> Response,
     @request_middleware = [] of Request -> MiddlewareResponse,
-    @response_middleware = [] of (Request, Response) -> Response)
+    @response_middleware = [] of (Request, Response) -> Response,
+    @middleware_objects  = [] of Middleware::Base
+    )
     # add default 404 handler if it isn't there
     unless @error_handlers.has_key? 404
       @error_handlers[404] = ->(request : Request) { Response.new(404, "Not found")}
@@ -25,6 +27,12 @@ class Handler < HTTP::Handler
         break
       end
     end
+
+    # Process request with middleware classes
+    @middleware_objects.each do |instance|
+      instance.process_request(request)
+    end
+
 
     unless response
       # search @routes for matching route
@@ -64,6 +72,10 @@ class Handler < HTTP::Handler
     # apply response middleware
     @response_middleware.each do |middleware|
       response = middleware.call(request, response)
+    end
+
+    @middleware_objects.each do |instance|
+      instance.process_response(request, response)
     end
 
 
