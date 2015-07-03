@@ -70,7 +70,11 @@ class Request
     query_string.split("&").each do |parameter|
         if m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(parameter)
           key = decode_query_param(m["key"])
-          value = decode_query_param(m["value"])
+          begin
+            value = decode_query_param(m["value"])
+          rescue ArgumentError
+            value = ""
+          end
           hash.add(key, value)
         end
       end
