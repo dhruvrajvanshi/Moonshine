@@ -43,8 +43,13 @@ class Request
   private def parse_cookies()
     if @headers.has_key? "Cookie"
       @headers["Cookie"].split(";").each do |cookie|
-        key = cookie.strip().split("=")[0]
-        value = cookie.strip().split("=")[1]
+        m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(cookie) as MatchData
+        key = m["key"]
+        begin
+          value = m["value"]
+        rescue ArgumentError
+          value = ""
+        end
         @cookies[key] = value
       end
     end
