@@ -109,4 +109,11 @@ class App
       @routes[Route.new("{{method.id}}".upcase, path.to_s)] = block
     end
   {% end %}
+
+  # overloads for route methods that take in proc as argument
+  {% for method in %w(get post put delete patch) %}
+    def {{method.id}}(path, block : Request -> Response)
+      @routes[Route.new("{{method.id}}".upcase, path.to_s)] = block
+    end
+  {% end %}
 end
