@@ -18,6 +18,10 @@ class App
     error_handler 404, do |req|
       Response.new(404, "Page not found")
     end
+
+    @handler = Handler.new(@routes, @static_dirs,
+      @error_handlers, @request_middleware, @response_middleware,
+      @middleware_objects, @controllers)
   end
 
   def define
@@ -28,9 +32,7 @@ class App
   def run(port = 8000)
     # Run the webapp on the specified port
     puts "Moonshine serving at port #{port}..."
-    server = HTTP::Server.new(port, Handler.new(@routes, @static_dirs,
-      @error_handlers, @request_middleware, @response_middleware,
-      @middleware_objects, @controllers))
+    server = HTTP::Server.new(port, @handler as Handler)
     server.listen()
   end
 
@@ -96,12 +98,6 @@ class App
     @controllers << controller
   end
 
-  # def controller(paths : Array(String), controller : Controller)
-  #   paths.each do |path|
-  #     controller(path, controller)
-  #   end
-  # end
-
   # methods for adding routes for individual
   # HTTP verbs
   {% for method in %w(get post put delete patch) %}
@@ -116,4 +112,8 @@ class App
       @routes[Route.new("{{method.id}}".upcase, path.to_s)] = block
     end
   {% end %}
+
+  def call(req)
+    @handler.call req
+  end
 end
