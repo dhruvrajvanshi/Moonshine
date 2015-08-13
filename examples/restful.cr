@@ -17,14 +17,14 @@ class PostController < Controller
   def create(req)
     unless req.post.has_key?("text")
       return Response.new(400,
-        "{message : Unable to create " +
-        "post without POST param 'text'. }"
+        "{\"message : \"Unable to create " +
+        "post without POST param 'text'.\"}"
         )
     end
     post = Post.new req.post["text"]
     @posts << post
     Response.new(201,
-      "{ message : 'Post created successfully' }",
+      "{\"message\": \"Post created successfully\"}",
     )
   end
 
@@ -41,13 +41,13 @@ class PostController < Controller
           post.to_s)
       end
     end
-    return not_found("{ message : 'Post id #{id} not found on the server'}")
+    return not_found("{\"message\": \"Post id #{id} not found on the server\"}")
   end
 
   def delete(req : Request)
     id = req.params["id"].to_i
     @posts.delete_if {|post| post.id == id }
-    return ok("{message : Post #{id} deleted }")
+    return ok("{\"message\": \"Post #{id} deleted\"}")
   end
 end
 
@@ -73,7 +73,7 @@ class Post
   end
 
   def to_s
-    "{ id : #{@id}, text : #{@text} }"
+    "{\"id\": \"#{@id}\", \"text\": \"#{@text}\"}"
   end
 end
 

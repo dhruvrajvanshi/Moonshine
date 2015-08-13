@@ -22,8 +22,8 @@ app.get "/get", do |request|
 end
 
 # you can set response headers
-app.get "api", do |request|
-    res = ok("{ name : 'moonshine'}")
+app.get "/api", do |request|
+    res = ok("{\"name\": \"moonshine\"}")
     res.headers["Content-type"] = "text/json"
     res
 end

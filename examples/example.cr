@@ -23,7 +23,7 @@ app.define do
   end
 
   get "/api", do |request|
-    res = ok("{ name : 'moonshine'}")
+    res = ok("{\"name\": \"moonshine\"}")
     res.headers["Content-type"] = "text/json"
     res
   end
