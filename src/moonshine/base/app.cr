@@ -14,14 +14,15 @@ class App
     @middleware_objects  = [] of Middleware::Base,
     @controllers         = [] of Base::Controller
   )
-    # add default 404 handler
-    error_handler 404, do |req|
-      Response.new(404, "Page not found")
-    end
 
     @handler = Handler.new(@routes, @static_dirs,
       @error_handlers, @request_middleware, @response_middleware,
       @middleware_objects, @controllers)
+
+    # add default 404 handler
+    error_handler 404, do |req|
+      Response.new(404, "Page not found")
+    end
   end
 
   def define
