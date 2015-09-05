@@ -131,4 +131,4 @@ app.response_middleware do |req, res|
 	res
 end
 ```
-Response middleware methods take request and response arguments and return a response. This is used to globally alter the response of the application. Response middleware are processed in order
+Response middleware methods take request and response arguments and return a response. This is used to globally alter the response of the application. Response middleware are processed in order.

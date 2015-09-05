@@ -5,7 +5,7 @@ require "time"
 
 module Moonshine
   module Utils
-    require "./logger"
     require "./shortcuts"   # inner module : Moonshine::Utils::Shortcuts
+    require "./http_logger"
   end
 end
