@@ -4,15 +4,11 @@
 require "http"
 require "time"
 
-include Moonshine::Exceptions
+require "./request"
+require "./response"
 
 module Moonshine
   module Http
     METHODS = %w(GET POST PUT DELETE PATCH)
-
-    require "./parameter_hash"
-    require "./request"
-    require "./response"
-    require "./middleware_response"
   end
 end

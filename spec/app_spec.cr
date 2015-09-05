@@ -1,6 +1,7 @@
 require "./spec_helper"
 require "http"
-
+include Moonshine::Base
+include Moonshine::Utils::Shortcuts
 
 class M < Middleware::Base
   def process_request(req)

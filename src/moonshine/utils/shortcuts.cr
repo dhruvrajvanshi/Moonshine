@@ -1,6 +1,5 @@
 include Moonshine::Http
-module Shortcuts
-
+module Moonshine::Utils::Shortcuts
   # Returns a Moonshine::Response object
   # from string
   def ok(body)
@@ -12,7 +11,7 @@ module Shortcuts
   end
 
   def not_found(msg=nil)
-    Moonshine::Http::Response.new(404, msg)
+    Response.new(404, msg)
   end
 
   # Returns a Redirect response to the specified

@@ -1,10 +1,9 @@
 require "spec"
+require "http"
 require "../src/moonshine"
 
-include Moonshine::Base
+include Moonshine
 include Moonshine::Http
-include Moonshine::Utils
-include Moonshine::Utils::Shortcuts
 
 # Helper method
 def new_request(method, path)

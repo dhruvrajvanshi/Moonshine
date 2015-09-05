@@ -5,13 +5,6 @@
 require "http"
 require "regex"
 
-include Moonshine
-include Moonshine::Http
-
-module Moonshine
-  module Base
-    require "./app"
-    require "./controller"
-    require "./route.cr"
-  end
-end
+require "./app"
+require "./controller"
+require "./route.cr"
