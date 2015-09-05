@@ -6,23 +6,15 @@ class App
 
 
   def initialize(
-    @static_dirs  = [] of String,
     @routes       = {} of Route => (Request -> Response) | Controller,
-    @error_handlers     = {} of Int32 => Request -> Response,
-    @request_middleware = [] of Request -> MiddlewareResponse,
+    @request_middleware = [] of Request -> Response?,
     @response_middleware = [] of (Request, Response) -> Response,
     @middleware_objects  = [] of Middleware::Base,
     @controllers         = [] of Base::Controller
   )
 
-    @handler = Handler.new(@routes, @static_dirs,
-      @error_handlers, @request_middleware, @response_middleware,
+    @handler = Handler.new(@routes, @request_middleware, @response_middleware,
       @middleware_objects, @controllers)
-
-    # add default 404 handler
-    error_handler 404, do |req|
-      Response.new(404, "Page not found")
-    end
   end
 
   def define
@@ -57,7 +49,7 @@ class App
   # Add request middleware. If handler returns a
   # response, no further handlers are called.
   # If nil is returned, the next handler is run
-  def request_middleware(&block : Request -> MiddlewareResponse)
+  def request_middleware(&block : Request -> Response?)
     @request_middleware << block
     self
   end
@@ -88,19 +80,6 @@ class App
     classes.each do |cls|
       middleware_object(cls.new)
     end
-    self
-  end
-
-  # Add handler for given error code
-  # multiple calls for the same error code result
-  # in overriding the previous handler
-  def error_handler(error_code, &block : Request -> Response)
-    @error_handlers[error_code] = block
-    self
-  end
-
-  def add_static_dir(path)
-    @static_dirs << path
     self
   end
 

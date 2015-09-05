@@ -13,19 +13,19 @@ app = App.new
 
 # respond to all HTTP verbs
 app.route "/", do |request|
-    ok("Hello Moonshine!")
+  ok("Hello Moonshine!")
 end
 
 # or particular HTTP verbs
 app.get "/get", do |request|
-    ok("This is a get response")
+  ok("This is a get response")
 end
 
 # you can set response headers
 app.get "/api", do |request|
-    res = ok("{\"name\": \"moonshine\"}")
-    res.headers["Content-type"] = "text/json"
-    res
+  res = ok("{\"name\": \"moonshine\"}")
+  res.headers["Content-type"] = "text/json"
+  res
 end
 
 app.run(8000)
@@ -92,15 +92,6 @@ app.controller(PostController.new)
 ```
 String and proc actions can also be mixed in a single router.
 
-## Error Handlers
-```crystal
-# add error handlers
-include Moonshine::Shortcuts
-app.error_handler "404", do |req|
-	Moonshine::not_found
-end
-```
-
 ## Middleware
 You can either create [middleware classes](#middleware_classes) or individual methods that process [request](#request_middleware) or [response](#response_middleware)
 ### Middleware Classes<a name="middleware_classes"></a>
@@ -122,18 +113,15 @@ app.middleware_object Hello.new
 ```crystal
 # add request middleware
 app.request_middleware do |req|
-	unless req.headers["user"]
-		Moonshine::Http::MiddlewareResponse.new(
-			Moonshine::Response.new(200, "Not allowed"),
-			pass_through = false
-			)
+	unless req.get.has_key? "user"
+		Moonshine::Http::Response.new(200, "Not allowed")
 	else
-		Moonshine::MiddlewareResponse.new
+		nil
 	end
 end
 ```
 
-To add a request middleware, call app.request_middleware with a block that returns a Moonshine::MiddlewareResponse object. If the @pass_through attribute of the MiddlewareResponse is true, other request middlewares will be called. Otherwise the @response attribute will be directly returned
+To add a request middleware, call app.request_middleware with a block that returns a response or nil. If the method returns nil, the response chain continues, otherwise, the response is sent back.
 
 ### Response Middleware<a name="response_middleware"></a>
 ```crystal
@@ -144,10 +132,3 @@ app.response_middleware do |req, res|
 end
 ```
 Response middleware methods take request and response arguments and return a response. This is used to globally alter the response of the application. Response middleware are processed in order
-
-## Static Files
-To serve a static directory, pass an array of paths to Moonshine::App's constructor
-
-```crystal
-app = App.new(static_dirs = ["res"])
-```
