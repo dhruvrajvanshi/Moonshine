@@ -1,12 +1,17 @@
 class Response
   getter status_code
+  setter status_code
   getter body
   setter body
   getter headers
   getter cookies
   setter cookies
+  getter version
 
-  def initialize(@status_code, @body, @headers = HTTP::Headers.new, @version = "HTTP/1.1", @cookies = {} of String => String)
+  def initialize(@status_code, @body, 
+    @headers = HTTP::Headers.new, 
+    @version = "HTTP/1.1", 
+    @cookies = {} of String => String)
   end
 
   def set_header(key, value)
@@ -15,10 +20,6 @@ class Response
 
 
   def to_base_response()
-    # unless @cookies.empty?
-    #   cookie_string = serialize_cookies()
-    #   @headers["Set-Cookie"] = cookie_string
-    # end
     return HTTP::Response.new(@status_code, @body,
       headers = @headers, version = @version)
   end
@@ -33,5 +34,14 @@ class Response
       cookie_string += "; HttpOnly"
     end
     headers.add("Set-Cookie", cookie_string)
+  end
+
+
+  def replace_with(res : Response)
+    @status_code = res.status_code
+    @body = res.body
+    @headers = res.headers
+    @version = res.version
+    @cookies = res.cookies
   end
 end

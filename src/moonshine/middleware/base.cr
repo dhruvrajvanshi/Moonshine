@@ -3,6 +3,7 @@ abstract class Base
   end
 
   def process_request(request : Request)
+    nil
   end
 
   def process_response(request : Request, response : Response)

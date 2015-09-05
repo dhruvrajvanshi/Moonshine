@@ -1,6 +1,16 @@
 require "./spec_helper"
 require "http"
 
+
+class M < Middleware::Base
+  def process_request(req)
+  end
+
+  def process_response(req, res)
+    res.replace_with(Response.new 200, "hello")
+  end
+end
+
 describe App do
   it "Hello, world!" do
     a = App.new
@@ -35,5 +45,13 @@ describe App do
 
     resp = app.call HTTP::Request.new "GET", "/"
     resp.status_code.should eq 400
+  end
+
+  it "calls middleware class" do
+    app = App.new
+    app.middleware_classes [M]
+    res = app.call HTTP::Request.new "GET", "/"
+    res.status_code.should eq 200
+    res.body.should eq "hello"
   end
 end
