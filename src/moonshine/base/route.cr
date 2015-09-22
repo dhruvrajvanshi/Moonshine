@@ -20,8 +20,8 @@ module Moonshine::Base
       return false unless (request.method == @method || @method == "" )
       path = request.path
       # return path == "/" if @path == "/"
-      return false if path.split("/").length !=
-        @pattern.split("/").length
+      return false if path.split("/").size !=
+        @pattern.split("/").size
       regex = Regex.new(@pattern.to_s.gsub(/(:\w*)/, ".*"))
       if path.match(regex)
         return true
@@ -39,7 +39,7 @@ module Moonshine::Base
       params = {} of String => String
       path_items = path.split("/")
       pattern_items = @pattern.split("/")
-      path_items.length.times do |i|
+      path_items.size.times do |i|
         if pattern_items[i].match(/(:\w*)/)
           params[pattern_items[i].gsub(/:/, "")] = path_items[i]
         end

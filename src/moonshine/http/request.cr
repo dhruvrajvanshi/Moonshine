@@ -46,7 +46,7 @@ module Moonshine::Http
     private def parse_cookies()
       if @headers.has_key? "Cookie"
         @headers["Cookie"].split(";").each do |cookie|
-          m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(cookie) as MatchData
+          m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(cookie) as Regex::MatchData
           key = m["key"]
           begin
             value = m["value"]
@@ -59,7 +59,7 @@ module Moonshine::Http
     end
 
     private def parse_get_params()
-      if @path.split("?").length > 1
+      if @path.split("?").size > 1
         # ignore everything after second ?
         query_string = @path.split("?")[1]
         @query_string = query_string
