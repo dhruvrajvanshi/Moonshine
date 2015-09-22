@@ -46,7 +46,7 @@ module Moonshine::Http
     private def parse_cookies()
       if @headers.has_key? "Cookie"
         @headers["Cookie"].split(";").each do |cookie|
-          m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(cookie) as MatchData
+          m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(cookie) as Regex::MatchData
           key = m["key"]
           begin
             value = m["value"]
