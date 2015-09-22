@@ -59,7 +59,7 @@ module Moonshine::Http
     end
 
     private def parse_get_params()
-      if @path.split("?").length > 1
+      if @path.split("?").size > 1
         # ignore everything after second ?
         query_string = @path.split("?")[1]
         @query_string = query_string
