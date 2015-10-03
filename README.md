@@ -1,5 +1,5 @@
 # Moonshine [![Build Status](https://travis-ci.org/dhruvrajvanshi/Moonshine.svg?branch=master)](https://travis-ci.org/dhruvrajvanshi/Moonshine)
-Moonshine is a minimal web framework for the Crystal language.
+Moonshine is a minimal sinatra like web framework for the Crystal language.
 Code speaks louder than words, so here's an example.
 
 ```crystal
@@ -36,7 +36,7 @@ Moonshine automatically pases POST and GET parameters for you. The `get` and `po
 
 ```crystal
 app.get "/putparams", do |request|
-	ok("<h1>POST<h1><p>#{request.post}</p><h2>GET<h2><p>#{request.get}</p>")
+  ok("<h1>POST<h1><p>#{request.post}</p><h2>GET<h2><p>#{request.get}</p>")
 end
 ```
 
@@ -46,46 +46,45 @@ Controllers are objects which can respond to multiple routes. Set the @rotuer in
 ```crystal
 # subclass Moonshine::Base::Controller to define a controller
 class HomeController < Moonshine::Base::Controller
-	def initialize()
-		@viewcount = 0
-		@router = {
-			"GET /" => ->get(Request),
-		}
-	end
+  def initialize()
+    @viewcount = 0
+    @router = {
+      "GET /" => ->get(Request),
+    }
+  end
 
-	def get(req)
-		@viewcount += 1
-		ok("This page has been visited #{@viewcount} times.")
-	end
+  def get(req)
+    @viewcount += 1
+    ok("This page has been visited #{@viewcount} times.")
+  end
 end
 
 # Bind controller to the app object
 app.controller "/", HomeController.new
-
 ```
 
 An action can also be a string containing the method name provided that the method is defined in the controller, and the controller name symbol has been passed to the actions macro in the controller definition.
 ```crystal
 class PostController < Moonshine::Base::Controller
-	actions :get_all_posts, :get_post
-	def initialize()
-		@posts = [
-					Post.new("Post1"),
-					Post.new("Post2")
-				 ] of Post
-		@router = {
-			"GET /posts" =>"get_all_posts",
-			"GET /posts/:id" => "get_post"
-		}
-	end
+  actions :get_all_posts, :get_post
+  def initialize()
+    @posts = [
+          Post.new("Post1"),
+          Post.new("Post2")
+         ] of Post
+    @router = {
+      "GET /posts" =>"get_all_posts",
+      "GET /posts/:id" => "get_post"
+    }
+  end
 
-	def get_post(req)
-		...
-	end
+  def get_post(req)
+    ...
+  end
 
-	def get_all_posts(req)
-		...
-	end
+  def get_all_posts(req)
+    ...
+  end
 end
 
 app.controller(PostController.new)
@@ -98,13 +97,13 @@ You can either create [middleware classes](#middleware_classes) or individual me
 You can add middleware classes to your application by inheriting from Middleware::Base. Your class can override process_request and process_response methods to globally alter request and response objects.
 ```crystal
 class Hello < Moonshine::Middleware::Base
-	def process_request(req)
-		req.headers["User"] = "Annonymous"
-	end
+  def process_request(req)
+    req.headers["User"] = "Annonymous"
+  end
 
-	def process_response(req, res)
-		req.body += "\nFooter"
-	end
+  def process_response(req, res)
+    req.body += "\nFooter"
+  end
 end
 app.middleware_object Hello.new
 ```
@@ -113,11 +112,11 @@ app.middleware_object Hello.new
 ```crystal
 # add request middleware
 app.request_middleware do |req|
-	unless req.get.has_key? "user"
-		Moonshine::Http::Response.new(200, "Not allowed")
-	else
-		nil
-	end
+  unless req.get.has_key? "user"
+    Moonshine::Http::Response.new(200, "Not allowed")
+  else
+    nil
+  end
 end
 ```
 
@@ -127,8 +126,8 @@ To add a request middleware, call app.request_middleware with a block that retur
 ```crystal
 # add response middleware
 app.response_middleware do |req, res|
-	res.body = "Modified"
-	res
+  res.body = "Modified"
+  res
 end
 ```
 Response middleware methods take request and response arguments and return a response. This is used to globally alter the response of the application. Response middleware are processed in order.
