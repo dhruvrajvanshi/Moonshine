@@ -32,7 +32,7 @@ app.run(8000)
 ```
 
 ## Form Parameters
-Moonshine automatically pases POST and GET parameters for you. The `get` and `post` properties are hashes of these params.
+Moonshine automatically parses POST and GET parameters for you. The `get` and `post` properties are hashes of these params.
 
 ```crystal
 app.get "/putparams", do |request|
