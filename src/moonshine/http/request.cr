@@ -14,10 +14,10 @@ module Moonshine::Http
     getter query_string
 
     def initialize(request : HTTP::Request)
-      @path = request.path
+      @path = request.resource
       @method = request.method
       @version = request.version
-      @body    = request.body
+      @body = request.body
       @headers = request.headers
       @params = {} of String => String
       @cookies = {} of String => String
@@ -28,7 +28,7 @@ module Moonshine::Http
       parse_post_params()
     end
 
-    def content_type()
+    def content_type
       unless @headers.has_key? "Content-type"
         return ""
       end
@@ -43,7 +43,7 @@ module Moonshine::Http
       @body.to_s
     end
 
-    private def parse_cookies()
+    private def parse_cookies
       if @headers.has_key? "Cookie"
         @headers["Cookie"].split(";").each do |cookie|
           m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(cookie) as Regex::MatchData
@@ -58,7 +58,7 @@ module Moonshine::Http
       end
     end
 
-    private def parse_get_params()
+    private def parse_get_params
       if @path.split("?").size > 1
         # ignore everything after second ?
         query_string = @path.split("?")[1]
@@ -68,7 +68,7 @@ module Moonshine::Http
       end
     end
 
-    private def parse_post_params()
+    private def parse_post_params
       if content_type.downcase == "application/x-www-form-urlencoded"
         populate_params_hash(@post, body)
       end
@@ -76,21 +76,19 @@ module Moonshine::Http
 
     private def populate_params_hash(hash, query_string)
       query_string.split("&").each do |parameter|
-          if m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(parameter)
-            key = decode_query_param(m["key"])
-            begin
-              value = decode_query_param(m["value"])
-            rescue ArgumentError
-              value = ""
-            end
-            hash.add(key, value)
+        if m = /^(?<key>[^=]*)(=(?<value>.*))?$/.match(parameter)
+          key = decode_query_param(m["key"])
+          begin
+            value = decode_query_param(m["value"])
+          rescue ArgumentError
+            value = ""
           end
+          hash.add(key, value)
         end
+      end
     end
 
-
-
-    ##
+    # #
     # Unescape query parameter value
     private def decode_query_param(string)
       # replace + with spaces
