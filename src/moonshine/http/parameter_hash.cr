@@ -1,3 +1,5 @@
+include Moonshine
+
 struct ParameterHash
   # ParameterHash is a hash that stores an array
   # of strings mapped to each key

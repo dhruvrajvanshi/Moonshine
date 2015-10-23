@@ -5,11 +5,12 @@ include Moonshine::Base
 class PostController < Controller
   actions :get_all, :create, :get, :delete
   @router = {
-    "GET /posts" => "get_all",
-    "POST /posts" => "create",
-    "GET /posts/:id" => "get",
-    "DELETE /posts/:id" => "delete"
-  }
+              "GET /posts"        => "get_all",
+              "POST /posts"       => "create",
+              "GET /posts/:id"    => "get",
+              "DELETE /posts/:id" => "delete",
+            }
+
   def initialize
     @posts = [] of Post
   end
@@ -17,28 +18,27 @@ class PostController < Controller
   def create(req)
     unless req.post.has_key?("text")
       return Response.new(400,
-        "{\"message : \"Unable to create " +
-        "post without POST param 'text'.\"}"
-        )
+                          "{\"message : \"Unable to create " +
+                            "post without POST param 'text'.\"}"
+                         )
     end
     post = Post.new req.post["text"]
     @posts << post
     Response.new(201,
-      "{\"message\": \"Post created successfully\"}",
-    )
+                 "{\"message\": \"Post created successfully\"}",
+                )
   end
 
   def get_all(req : Request)
     ok(post_array_to_json(@posts))
   end
 
-
   def get(req : Request)
     id = req.params["id"].to_i
     @posts.each do |post|
       if post.id == id
         return Response.new(200,
-          post.to_s)
+                            post.to_s)
       end
     end
     return not_found("{\"message\": \"Post id #{id} not found on the server\"}")
@@ -46,13 +46,13 @@ class PostController < Controller
 
   def delete(req : Request)
     id = req.params["id"].to_i
-    @posts.delete_if {|post| post.id == id }
+    @posts.delete id
     return ok("{\"message\": \"Post #{id} deleted\"}")
   end
 end
 
 def post_array_to_json(posts)
-  if posts.length == 0 return "[]" end
+  return "[]" if posts.size == 0
   out_string = "["
   posts.each do |post|
     out_string += post.to_s + ","
@@ -67,6 +67,7 @@ class Post
   getter text
 
   @@postcount = 0
+
   def initialize(@text)
     @@postcount += 1
     @id = @@postcount
@@ -77,7 +78,7 @@ class Post
   end
 end
 
-app = App.new  # Instantiate app
+app = App.new                 # Instantiate app
 postCtrl = PostController.new # Instantiate controller
 
 app.controller(postCtrl)
@@ -87,4 +88,4 @@ app.response_middleware do |req, res|
   res
 end
 
-app.run()
+app.run
