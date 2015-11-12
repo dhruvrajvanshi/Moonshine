@@ -1,5 +1,18 @@
 # Moonshine [![Build Status](https://travis-ci.org/dhruvrajvanshi/Moonshine.svg?branch=master)](https://travis-ci.org/dhruvrajvanshi/Moonshine)
 Moonshine is a minimal sinatra like web framework for the Crystal language.
+
+## Installation
+
+Add this to your application's `shard.yml`:
+
+```yaml
+dependencies:
+  moonshine:
+    github: dhruvrajvanshi/Moonshine
+```
+
+## Usage
+
 Code speaks louder than words, so here's an example.
 
 ```crystal
