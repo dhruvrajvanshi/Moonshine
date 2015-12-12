@@ -147,9 +147,11 @@ Response middleware methods take request and response arguments and return a res
 
 
 ## Changelog
+```
 0.3.0 : Renamed base module to core.
         Aliased Moonshine::App = Moonshine::Core::App (Previously Moonshine::Base::App)
         Aliased Moonshine::Controller = Moonshine::Core::Controller
         Moved Moonshine::Middleware::Base => Moonshine::Core::Middleware
         Aliased Moonshine::Middleware = Moonshine::Core::Middleware
         Added Moonshine::Utils::StaticDirs middleware class. It can serve multiple directories
+```
