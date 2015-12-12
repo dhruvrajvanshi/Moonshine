@@ -20,7 +20,7 @@ require "moonshine"
 
 include Moonshine
 include Moonshine::Utils::Shortcuts
-include Moonshine::Base
+include Moonshine
 
 app = App.new
 
@@ -57,8 +57,8 @@ end
 Controllers are objects which can respond to multiple routes. Set the @rotuer instance variable of a controller to specify routing within controller. Add the controller to the app using app.controller method.
 @router maps between a route and an action. Action can be any object with a call method (usually a Proc).
 ```crystal
-# subclass Moonshine::Base::Controller to define a controller
-class HomeController < Moonshine::Base::Controller
+# Inherit from Moonshine::Controller to define a controller
+class HomeController < Moonshine::Controller
   def initialize()
     @viewcount = 0
     @router = {
@@ -78,7 +78,7 @@ app.controller "/", HomeController.new
 
 An action can also be a string containing the method name provided that the method is defined in the controller, and the controller name symbol has been passed to the actions macro in the controller definition.
 ```crystal
-class PostController < Moonshine::Base::Controller
+class PostController < Moonshine::Controller
   actions :get_all_posts, :get_post
   def initialize()
     @posts = [
@@ -107,9 +107,9 @@ String and proc actions can also be mixed in a single router.
 ## Middleware
 You can either create [middleware classes](#middleware_classes) or individual methods that process [request](#request_middleware) or [response](#response_middleware)
 ### Middleware Classes<a name="middleware_classes"></a>
-You can add middleware classes to your application by inheriting from Middleware::Base. Your class can override process_request and process_response methods to globally alter request and response objects.
+You can add middleware classes to your application by inheriting from Moonshine::Middleware. Your class can override process_request and process_response methods to globally alter request and response objects.
 ```crystal
-class Hello < Moonshine::Middleware::Base
+class Hello < Moonshine::Middleware
   def process_request(req)
     req.headers["User"] = "Annonymous"
   end
@@ -144,3 +144,12 @@ app.response_middleware do |req, res|
 end
 ```
 Response middleware methods take request and response arguments and return a response. This is used to globally alter the response of the application. Response middleware are processed in order.
+
+
+## Changelog
+0.3.0 : Renamed base module to core.
+        Aliased Moonshine::App = Moonshine::Core::App (Previously Moonshine::Base::App)
+        Aliased Moonshine::Controller = Moonshine::Core::Controller
+        Moved Moonshine::Middleware::Base => Moonshine::Core::Middleware
+        Aliased Moonshine::Middleware = Moonshine::Core::Middleware
+        Added Moonshine::Utils::StaticDirs middleware class. It can serve multiple directories

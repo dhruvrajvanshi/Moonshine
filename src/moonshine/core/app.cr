@@ -1,7 +1,6 @@
 include Moonshine::Http
-include Moonshine::Middleware
 
-module Moonshine::Base
+module Moonshine::Core
   class App < HTTP::Handler
     # Base class for Moonshine app
     getter server
@@ -13,8 +12,8 @@ module Moonshine::Base
       @routes       = {} of Route => (Request -> Response) | Controller,
       @request_middleware = [] of Request -> Response?,
       @response_middleware = [] of (Request, Response) -> Response,
-      @middleware_objects  = [] of Middleware::Base,
-      @controllers         = [] of Base::Controller
+      @middleware_objects  = [] of Middleware,
+      @controllers         = [] of Controller
     )
     end
 
@@ -63,14 +62,14 @@ module Moonshine::Base
     end
 
     ##
-    # Add middleware class. Pass in Middleware::Base instance
+    # Add middleware class. Pass in Middleware instance
     # with overridden process_request and process_response methods
-    def middleware_object(instance : Middleware::Base)
+    def middleware_object(instance : Middleware)
       @middleware_objects << instance
       self
     end
 
-    def middleware_objects(objects : Array(Middleware::Base))
+    def middleware_objects(objects : Array(Middleware))
       objects.each do |object|
         middleware_object(object)
       end
@@ -120,7 +119,7 @@ module Moonshine::Base
 
       # Process request with middleware classes
       @middleware_objects.each do |instance|
-        instance.process_request(request)
+        response = instance.process_request(request)
       end
 
       # Check if a controller handles the route

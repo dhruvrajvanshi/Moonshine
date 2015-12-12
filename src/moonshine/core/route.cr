@@ -1,4 +1,4 @@
-module Moonshine::Base
+module Moonshine::Core
   class Route
     # Moonshine route class
     # Is a simple 2-tuple of a regex and a
@@ -17,7 +17,7 @@ module Moonshine::Base
     # Check if request matched the current route
     def match?(request : Request)
       # Non matching request method
-      return false unless (request.method == @method || @method == "" )
+      return false unless (request.method == @method || @method == "")
       path = request.path
       # return path == "/" if @path == "/"
       return false if path.split("/").size !=
@@ -28,7 +28,6 @@ module Moonshine::Base
       else
         return false
       end
-
     end
 
     # Returns hash of request parameters from

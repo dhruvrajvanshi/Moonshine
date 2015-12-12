@@ -1,5 +1,5 @@
-module Moonshine::Middleware
-  abstract class Base
+module Moonshine::Core
+  abstract class Middleware
     def initialize
     end
 

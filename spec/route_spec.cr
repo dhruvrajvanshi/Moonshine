@@ -1,6 +1,6 @@
 require "./spec_helper"
 require "http"
-
+include Moonshine::Core
 
 describe Route do
   it "matches root path" do
@@ -36,11 +36,10 @@ describe Route do
   it "parses parameters from request" do
     route = Route.new "GET", "/hello/:id"
     route.get_params(
-        new_request("GET", "/hello/1")
-      )["id"].should eq("1")
+      new_request("GET", "/hello/1")
+    )["id"].should eq("1")
     route.get_params(
-        new_request("GET", "/hello/abc")
-      )["id"].should eq("abc")
+      new_request("GET", "/hello/abc")
+    )["id"].should eq("abc")
   end
 end
-

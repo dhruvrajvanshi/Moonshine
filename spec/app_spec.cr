@@ -1,9 +1,9 @@
 require "./spec_helper"
 require "http"
-include Moonshine::Base
+include Moonshine
 include Moonshine::Utils::Shortcuts
 
-class M < Middleware::Base
+class M < Middleware
   def process_request(req)
   end
 
@@ -23,13 +23,13 @@ describe App do
 
   it "404" do
     (App.new.call HTTP::Request.new "GET", "/").status_code
-      .should eq 404
+                                               .should eq 404
   end
 
   it "calls request middleware" do
     app = App.new
 
-    app.get "/", do |req|
+    app.get "/" do |req|
       user = req.get["user"]
       ok("Hello, #{user}!")
     end

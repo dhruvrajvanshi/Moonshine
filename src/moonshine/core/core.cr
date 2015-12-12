@@ -7,4 +7,5 @@ require "regex"
 
 require "./app"
 require "./controller"
-require "./route.cr"
+require "./route"
+require "./middleware"

@@ -3,5 +3,6 @@
 
 require "time"
 
-require "./shortcuts"   # inner module : Moonshine::Utils::Shortcuts
+require "./shortcuts" # inner module : Moonshine::Utils::Shortcuts
 require "./http_logger"
+require "./static_dirs"

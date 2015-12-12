@@ -1,6 +1,6 @@
 require "../src/moonshine"
 include Moonshine::Utils::Shortcuts
-include Moonshine::Base
+include Moonshine
 
 class PostController < Controller
   actions :get_all, :create, :get, :delete

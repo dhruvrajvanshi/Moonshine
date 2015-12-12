@@ -2,17 +2,15 @@ require "./route"
 
 include Moonshine::Http
 
-module Moonshine::Base
+module Moonshine::Core
   abstract class Controller
     property router
-    
-    @router = {
-    } of String => String
-    
+    @router = {} of String => String
+
     def call(request)
       @router.each do |route, action|
         method = route.split(" ")[0]
-        path   = route.split(" ")[1]
+        path = route.split(" ")[1]
         route = Route.new(method, path)
         if route.match?(request)
           request.set_params(route.get_params(request))
@@ -27,16 +25,16 @@ module Moonshine::Base
     end
 
     def handles?(request)
-      @router.each do |route,block|
+      @router.each do |route, block|
         method = route.split(" ")[0]
-        path   = route.split(" ")[1]
+        path = route.split(" ")[1]
         if Route.new(method, path).match?(request)
           return true
         end
       end
       return false
     end
-    
+
     # Converts allows strings to be converted to procs
     macro actions(*actions)
       private def action_to_proc(action_string : String)
