@@ -1,4 +1,9 @@
 # Moonshine [![Build Status](https://travis-ci.org/dhruvrajvanshi/Moonshine.svg?branch=master)](https://travis-ci.org/dhruvrajvanshi/Moonshine)
+Notice: This repository is no longer maintained.
+[Kemal](https://github.com/sdogruyol/kemal) does pretty
+much what Moonshine does and it has better documentation.
+
+
 Moonshine is a minimal sinatra like web framework for the Crystal language.
 
 ## Installation
